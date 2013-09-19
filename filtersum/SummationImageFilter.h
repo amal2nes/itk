@@ -3,6 +3,10 @@
 
 #include "itkImageToImageFilter.h"
 
+#include "itkNeighborhoodIterator.h"
+#include "itkImageRegionIterator.h"
+#include "itkConstantBoundaryCondition.h"
+
 namespace itk{
 
 template <class TInputImage, class TOutputImage>
@@ -27,6 +31,15 @@ public:
   typedef typename OutputImageType::Pointer     OutputImagePointer;
   typedef typename InputImageType::Pointer      InputImagePointer;
   typedef typename InputImageType::ConstPointer InputImageConstPointer;
+  typedef itk::Image< double, 3 > ImageTypeDouble;
+  typedef typename ImageTypeDouble::Pointer ImageTypeDoublePointer;
+
+  typedef itk::ConstantBoundaryCondition<ImageTypeDouble> BoundaryConditionType;
+
+  typedef itk::NeighborhoodIterator<ImageTypeDouble,BoundaryConditionType> NeighborhoodIteratorType;
+  typedef itk::ImageRegionIterator< ImageTypeDouble> IteratorType;
+  typedef typename NeighborhoodIteratorType::RadiusType RadiusType;
+  typedef typename NeighborhoodIteratorType::OffsetType OffsetType;
 
 protected:
   SummationImageFilter();
@@ -39,7 +52,7 @@ protected:
 private:
   SummationImageFilter(const Self &); //purposely not implemented
   void operator=(const Self &);          //purposely not implemented
-
+  
 };
 
 }

@@ -17,10 +17,11 @@ int main(int argc, char **argv)
   if(argc < 3)
     return EXIT_FAILURE;
 
-  typedef itk::Image< short int, 3 > ImageType;
-  typedef itk::ImageFileReader<ImageType> ReaderType;
-  typedef itk::ImageFileWriter<ImageType> WriterType;
-  typedef itk::SummationImageFilter< ImageType, ImageType > FilterType;
+  typedef itk::Image< short int, 3 > ImageTypeIn;
+  typedef itk::Image< int, 3 > ImageTypeOut;
+  typedef itk::ImageFileReader<ImageTypeIn> ReaderType;
+  typedef itk::ImageFileWriter<ImageTypeOut> WriterType;
+  typedef itk::SummationImageFilter< ImageTypeIn, ImageTypeOut > FilterType;
  
   ReaderType::Pointer reader = ReaderType::New();
   WriterType::Pointer writer = WriterType::New();
