@@ -13,7 +13,7 @@ find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 
 add_executable(TestFilter TestFilter.cxx SummationImageFilter.h SummationImageFilter.hxx)
 
