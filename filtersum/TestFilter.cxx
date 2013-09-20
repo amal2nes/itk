@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
 
   typedef itk::Image< short int, 3 > ImageTypeIn;
-  typedef itk::Image< int, 3 > ImageTypeOut;
+  typedef itk::Image< short int, 3 > ImageTypeOut;
   typedef itk::ImageFileReader<ImageTypeIn> ReaderType;
   typedef itk::ImageFileWriter<ImageTypeOut> WriterType;
   typedef itk::SummationImageFilter< ImageTypeIn, ImageTypeOut > FilterType;

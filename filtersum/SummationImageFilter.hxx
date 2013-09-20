@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <limits>
+#include <time.h>
 
 namespace itk{
 
@@ -30,6 +31,9 @@ SummationImageFilter< TInputImage, TOutputImage>
 template< class TInputImage, class TOutputImage>
 void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
 {
+  clock_t t1,t2;
+  float diff;
+
   itkDebugMacro(<< "SummationImageFilter::GenerateData() called");
 
   InputImageConstPointer inputPtr  = this->GetInput();
@@ -44,12 +48,18 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
 
   itk::ImageRegionIterator<ImageTypeDouble> outputIterator(tempPtr, tempPtr->GetRequestedRegion());
 
+  t1=clock();
+
   while(!inputIterator.IsAtEnd())
   {
-    outputIterator.Set((double)(inputIterator.Get() + 1024) / (double)1000.0);
+    outputIterator.Set((double)inputIterator.Get() + 1024);
     ++inputIterator;
     ++outputIterator;
   }
+
+  t2=clock();
+  diff = ((float)t2-(float)t1);
+  std::cout<<"copy image: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
 
   //perform 3D summation with neighborhood iterators
 
@@ -57,8 +67,6 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   RadiusType radius;
   radius.Fill(1);
   NeighborhoodIteratorType it( radius, tempPtr, tempPtr->GetLargestPossibleRegion());
-
-  IteratorType out(tempPtr, tempPtr->GetLargestPossibleRegion());
 
   OffsetType offset0 = {{0,0,0}};
   OffsetType offset1 = {{-1,0,0}};
@@ -69,42 +77,71 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   OffsetType offset6 = {{0,-1,-1}};
   OffsetType offset7 = {{-1,-1,-1}};
 
-  double maxVal = 0;
+//  itk::Neighborhood< double, 3, TAllocator >
 
-  for (it.GoToBegin(), out.GoToBegin(); !it.IsAtEnd(); ++it, ++out)
-  {
-    double sum = 0;
-    double temp[8];
-    temp[0] = (double)it.GetPixel(offset0); 
-    temp[1] = (double)it.GetPixel(offset1); 
-    temp[2] = (double)it.GetPixel(offset2); 
-    temp[3] = -1.0 * (double)it.GetPixel(offset3);
-    temp[4] = (double)it.GetPixel(offset4);
-    temp[5] = -1.0 * (double)it.GetPixel(offset5);
-    temp[6] = -1.0 * (double)it.GetPixel(offset6);
-    temp[7] = (double)it.GetPixel(offset7);
-    
+  double sum;
+  double temp[8];
+  
+  t1=clock();
+
+  for (it.GoToBegin(); !it.IsAtEnd(); ++it)
+  {   
+    sum = 0;
+    temp[0] = it.GetPixel(offset0); 
+    temp[1] = it.GetPixel(offset1); 
+    temp[2] = it.GetPixel(offset2); 
+    temp[3] = -1.0 * it.GetPixel(offset3);
+    temp[4] = it.GetPixel(offset4);
+    temp[5] = -1.0 * it.GetPixel(offset5);
+    temp[6] = -1.0 * it.GetPixel(offset6);
+    temp[7] = it.GetPixel(offset7);
+
+    //get neighborhood region from one operation
+
+    //  GetNeighborhood()
+
+//    SetNeighborhood(NeighborhoodType &a)
+
     for( int i = 0; i < 8; i++)
     { 
       sum += temp[i]; 
     }
 
-    out.Set(sum);
-    if(maxVal < sum)
-      maxVal = sum;
-    } 
+    //out.Set(sum);
+    it.SetCenterPixel(sum);
+  } 
 
-  std::cout<<"maxval:"<<maxVal<<std::endl;
+  t2=clock();
+  diff = ((float)t2-(float)t1);
+  std::cout<<"sum image: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+
+
+  t1=clock();
 
   typedef itk::RescaleIntensityImageFilter<ImageTypeDouble, TOutputImage > RescaleFilterType;
   typename RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
   rescaler->SetOutputMinimum(0);
   rescaler->SetOutputMaximum( 3000 );
-
   rescaler->SetInput(tempPtr);
-  rescaler->GraftOutput( this->GetOutput() );
+  rescaler->GraftOutput(outputPtr);
   rescaler->Update();
   this->GraftOutput( rescaler->GetOutput() );
+
+  t2=clock();
+  diff = ((float)t2-(float)t1);
+  std::cout<<"rescale image: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+
+/*
+  typedef itk::RescaleIntensityImageFilter<TInputImage, TOutputImage > RescaleFilterType2;
+  typename RescaleFilterType2::Pointer rescaler2 = RescaleFilterType2::New();
+
+  rescaler2->SetOutputMinimum(0);
+  rescaler2->SetOutputMaximum( 3000 );
+  rescaler2->SetInput(inputPtr);
+  rescaler2->GraftOutput(outputPtr);
+  rescaler2->Update();
+  this->GraftOutput( rescaler2->GetOutput() );
+*/
 
 }
 
