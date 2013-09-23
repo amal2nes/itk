@@ -8,6 +8,9 @@
 #include <iostream>
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
+#include <itkPasteImageFilter.h>
+#include <itkImageDuplicator.h>
+#include <itkCastImageFilter.h>
 
 //the filter to test
 #include "SummationImageFilter.h"
@@ -33,7 +36,25 @@ int main(int argc, char **argv)
   filter->SetInput(reader->GetOutput());
   writer->SetInput(filter->GetOutput());
 
-  //filter->Update();  
+/*
+  reader->Update();
+  ImageTypeIn::RegionType largest = reader->GetOutput()->GetLargestPossibleRegion();
+  itk::ImageRegion<3> selectRegion;
+  itk::Index<3> sourceIndex;
+  itk::Size<3> sourceSize;
+  sourceIndex[0] = (unsigned long) (0.25 * largest.GetSize(0));
+  sourceIndex[1] = (unsigned long) (0.25 * largest.GetSize(1));
+  sourceIndex[2] = (unsigned long) (0.25 * largest.GetSize(2));
+  sourceSize[0] = (unsigned long) (0.25 * largest.GetSize(0));
+  sourceSize[1] = (unsigned long) (0.25 * largest.GetSize(1));
+  sourceSize[2] = (unsigned long) (0.25 * largest.GetSize(2));
+
+  selectRegion.SetIndex(sourceIndex);
+  selectRegion.SetSize(sourceSize);
+  filter->GetOutput()->SetRequestedRegion(selectRegion);
+  filter->Update();  
+  writer->SetInput(filter->GetOutput());
+*/
 
   try
     {

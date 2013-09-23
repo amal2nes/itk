@@ -55,24 +55,25 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   
   bool doneFirstPixel;
 
+  //sum up 1st dimension
   while( !inputIterator.IsAtEnd() )
   {
     doneFirstPixel = false;
     
+    float val = 0;
+
     while( !inputIterator.IsAtEndOfLine() )
     {
       if(doneFirstPixel == true)
       {
-        --outputIterator;
-        float val = inputIterator.Get() + 1024 + outputIterator.Get();
-        ++outputIterator;
+	val += inputIterator.Get();
         outputIterator.Set(val);
         ++inputIterator;
         ++outputIterator;
       }
       else
       {
-        outputIterator.Set(inputIterator.Get() + 1024);
+        outputIterator.Set(inputIterator.Get());
         ++inputIterator;
         ++outputIterator;
         doneFirstPixel = true;
@@ -82,40 +83,33 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
     outputIterator.NextLine();
   }
 
+//sum up other 2 dimensions
   for(int dir = 1; dir < 3; dir++)
   {  
- 
-    ImageLinearConstIteratorWithIndex<TOutputImage> inputIterator2(outputPtr, outputPtr->GetRequestedRegion());
-
-    inputIterator2.SetDirection(dir);
-    inputIterator2.GoToBegin();
     outputIterator.SetDirection(dir);
     outputIterator.GoToBegin();
 
-    while( !inputIterator2.IsAtEnd() )
+    while( !outputIterator.IsAtEnd() )
     { 
+
       doneFirstPixel = false;
+
+      float val = 0;
     
-      while( !inputIterator2.IsAtEndOfLine() )
+      while( !outputIterator.IsAtEndOfLine() )
       {
         if(doneFirstPixel == true)
         {
-          --outputIterator;
-          float val = inputIterator2.Get() + 1024 + outputIterator.Get();
-          ++outputIterator;
+          val += outputIterator.Get();
           outputIterator.Set(val);
-          ++inputIterator2;
           ++outputIterator;
         }
         else
         {
-          outputIterator.Set(inputIterator2.Get() + 1024);
-          ++inputIterator2;
           ++outputIterator;
           doneFirstPixel = true;
         }
       }
-      inputIterator2.NextLine();
       outputIterator.NextLine();
     }
   }
