@@ -40,19 +40,32 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   InputImageConstPointer inputPtr  = this->GetInput();
   OutputImagePointer     outputPtr = this->GetOutput();
 
+  //get size of image
+  typename TInputImage::SizeType inputSize = inputPtr->GetLargestPossibleRegion().GetSize();
+
+  std::cout<<"input size: "<<inputSize[0]<<", "<<inputSize[1]<<", "<<inputSize[2]<<std::endl;
+
   outputPtr->SetRegions(inputPtr->GetRequestedRegion());
   outputPtr->Allocate();
-
-  ImageLinearConstIteratorWithIndex<TInputImage> inputIterator(inputPtr, inputPtr->GetRequestedRegion());
-  ImageLinearIteratorWithIndex<TOutputImage> outputIterator(outputPtr, outputPtr->GetRequestedRegion());
   
+  int total = inputSize[0]*inputSize[1]*inputSize[2];
+
+  const short int * in = inputPtr->GetBufferPointer();  
+  float * out = outputPtr->GetBufferPointer(); 
+
+
   t1=clock();
 
- 
+  for(int i = 0; i < total; i++)
+  {
+    *out = *in;
+    in++;
+    out++;
+  }
+
   t2=clock();
   diff = ((float)t2-(float)t1);
   std::cout<<"Summation Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
-
 }
 
 }
