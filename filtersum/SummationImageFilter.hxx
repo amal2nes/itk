@@ -43,88 +43,22 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   outputPtr->SetRegions(inputPtr->GetRequestedRegion());
   outputPtr->Allocate();
 
-  ImageLinearConstIteratorWithIndex<TInputImage> inputIterator(inputPtr, inputPtr->GetRequestedRegion());
-  ImageLinearIteratorWithIndex<TOutputImage> outputIterator(outputPtr, outputPtr->GetRequestedRegion());
+  ImageRegionConstIterator<TInputImage> inputIterator(inputPtr, inputPtr->GetRequestedRegion());
+  ImageRegionIterator<TOutputImage> outputIterator(outputPtr, outputPtr->GetRequestedRegion());
   
-  t1=clock();
-
-  inputIterator.SetDirection(0);
   inputIterator.GoToBegin();
-  outputIterator.SetDirection(0);
   outputIterator.GoToBegin();
-  
-  bool doneFirstPixel;
-
-  //sum up 1st dimension
-  while( !inputIterator.IsAtEnd() )
+ 
+  for(;!inputIterator.IsAtEnd(); ++inputIterator, ++outputIterator)
   {
-    doneFirstPixel = false;
-    
-    float val = 0;
-
-    while( !inputIterator.IsAtEndOfLine() )
-    {
-      if(doneFirstPixel == true)
-      {
-	val += inputIterator.Get();
-        outputIterator.Set(val);
-        ++inputIterator;
-        ++outputIterator;
-      }
-      else
-      {
-        outputIterator.Set(inputIterator.Get());
-        ++inputIterator;
-        ++outputIterator;
-        doneFirstPixel = true;
-      }
-    }
-    inputIterator.NextLine();
-    outputIterator.NextLine();
+    outputIterator.Set(inputIterator.Get());
   }
-
-//sum up other 2 dimensions
-  for(int dir = 1; dir < 3; dir++)
-  {  
-    outputIterator.SetDirection(dir);
-    outputIterator.GoToBegin();
-
-    while( !outputIterator.IsAtEnd() )
-    { 
-
-      doneFirstPixel = false;
-
-      float val = 0;
-    
-      while( !outputIterator.IsAtEndOfLine() )
-      {
-        if(doneFirstPixel == true)
-        {
-          val += outputIterator.Get();
-          outputIterator.Set(val);
-          ++outputIterator;
-        }
-        else
-        {
-          ++outputIterator;
-          doneFirstPixel = true;
-        }
-      }
-      outputIterator.NextLine();
-    }
-  }
-
-  t2=clock();
-  diff = ((float)t2-(float)t1);
-  std::cout<<"Summation Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
-
-/*
   //perform 3D summation with neighborhood iterators
 
   //pad boundary to zero
   RadiusType radius;
   radius.Fill(1);
-  NeighborhoodIteratorType it( radius, tempPtr, tempPtr->GetLargestPossibleRegion());
+  NeighborhoodIteratorType it( radius, outputPtr, outputPtr->GetLargestPossibleRegion());
 
   OffsetType offset0 = {{0,0,0}};
   OffsetType offset1 = {{-1,0,0}};
@@ -135,8 +69,8 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   OffsetType offset6 = {{0,-1,-1}};
   OffsetType offset7 = {{-1,-1,-1}};
 
-  double sum;
-  double temp[8];
+  float sum;
+  float temp[8];
   
   t1=clock();
 
@@ -164,23 +98,6 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   t2=clock();
   diff = ((float)t2-(float)t1);
   std::cout<<"sum image: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
-*/
-/*
-  t1=clock();
-
-  typedef itk::RescaleIntensityImageFilter<ImageTypeDouble, TOutputImage > RescaleFilterType;
-  typename RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
-  rescaler->SetOutputMinimum(0);
-  rescaler->SetOutputMaximum( 3000 );
-  rescaler->SetInput(tempPtr);
-  rescaler->GraftOutput(outputPtr);
-  rescaler->Update();
-  this->GraftOutput( rescaler->GetOutput() );
-
-  t2=clock();
-  diff = ((float)t2-(float)t1);
-  std::cout<<"rescale image: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
-*/
 
 }
 

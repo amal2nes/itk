@@ -34,10 +34,13 @@ public:
   typedef itk::Image< double, 3 > ImageTypeDouble;
   typedef typename ImageTypeDouble::Pointer ImageTypeDoublePointer;
 
-  typedef itk::ConstantBoundaryCondition<ImageTypeDouble> BoundaryConditionType;
+  typedef itk::Image< float, 3 > ImageTypeFloat;
+  typedef typename ImageTypeFloat::Pointer ImageTypeFloatPointer;
 
-  typedef itk::NeighborhoodIterator<ImageTypeDouble,BoundaryConditionType> NeighborhoodIteratorType;
-  typedef itk::ImageRegionIterator< ImageTypeDouble> IteratorType;
+  typedef itk::ConstantBoundaryCondition<ImageTypeFloat> BoundaryConditionType;
+
+  typedef itk::NeighborhoodIterator<ImageTypeFloat,BoundaryConditionType> NeighborhoodIteratorType;
+  typedef itk::ImageRegionIterator< ImageTypeFloat> IteratorType;
   typedef typename NeighborhoodIteratorType::RadiusType RadiusType;
   typedef typename NeighborhoodIteratorType::OffsetType OffsetType;
 
