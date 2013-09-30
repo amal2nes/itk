@@ -83,36 +83,36 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
     outputIterator.NextLine();
   }
 
-// //sum up other 2 dimensions
-//   for(int dir = 1; dir < 3; dir++)
-//   {  
-//     outputIterator.SetDirection(dir);
-//     outputIterator.GoToBegin();
+//sum up other 2 dimensions
+  for(int dir = 1; dir < 3; dir++)
+  {  
+    outputIterator.SetDirection(dir);
+    outputIterator.GoToBegin();
 
-//     while( !outputIterator.IsAtEnd() )
-//     { 
+    while( !outputIterator.IsAtEnd() )
+    { 
 
-//       doneFirstPixel = false;
+      doneFirstPixel = false;
 
-//       float val = 0;
+      float val = 0;
     
-//       while( !outputIterator.IsAtEndOfLine() )
-//       {
-//         if(doneFirstPixel == true)
-//         {
-//           val += outputIterator.Get();
-//           outputIterator.Set(val);
-//           ++outputIterator;
-//         }
-//         else
-//         {
-//           ++outputIterator;
-//           doneFirstPixel = true;
-//         }
-//       }
-//       outputIterator.NextLine();
-//     }
-//   }
+      while( !outputIterator.IsAtEndOfLine() )
+      {
+        if(doneFirstPixel == true)
+        {
+          val += outputIterator.Get();
+          outputIterator.Set(val);
+          ++outputIterator;
+        }
+        else
+        {
+          ++outputIterator;
+          doneFirstPixel = true;
+        }
+      }
+      outputIterator.NextLine();
+    }
+  }
 
   // t2=clock();
   // diff = ((float)t2-(float)t1);
