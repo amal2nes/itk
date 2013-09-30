@@ -32,10 +32,10 @@ SummationImageFilter< TInputImage, TOutputImage>
 template< class TInputImage, class TOutputImage>
 void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
 {
-  clock_t t1,t2;
-  float diff;
+  // clock_t t1,t2;
+  // float diff;
 
-  itkDebugMacro(<< "SummationImageFilter::GenerateData() called");
+//  itkDebugMacro(<< "SummationImageFilter::GenerateData() called");
 
   InputImageConstPointer inputPtr  = this->GetInput();
   OutputImagePointer     outputPtr = this->GetOutput();
@@ -46,7 +46,7 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   ImageLinearConstIteratorWithIndex<TInputImage> inputIterator(inputPtr, inputPtr->GetRequestedRegion());
   ImageLinearIteratorWithIndex<TOutputImage> outputIterator(outputPtr, outputPtr->GetRequestedRegion());
   
-  t1=clock();
+  // t1=clock();
 
   inputIterator.SetDirection(0);
   inputIterator.GoToBegin();
@@ -83,40 +83,40 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
     outputIterator.NextLine();
   }
 
-//sum up other 2 dimensions
-  for(int dir = 1; dir < 3; dir++)
-  {  
-    outputIterator.SetDirection(dir);
-    outputIterator.GoToBegin();
+// //sum up other 2 dimensions
+//   for(int dir = 1; dir < 3; dir++)
+//   {  
+//     outputIterator.SetDirection(dir);
+//     outputIterator.GoToBegin();
 
-    while( !outputIterator.IsAtEnd() )
-    { 
+//     while( !outputIterator.IsAtEnd() )
+//     { 
 
-      doneFirstPixel = false;
+//       doneFirstPixel = false;
 
-      float val = 0;
+//       float val = 0;
     
-      while( !outputIterator.IsAtEndOfLine() )
-      {
-        if(doneFirstPixel == true)
-        {
-          val += outputIterator.Get();
-          outputIterator.Set(val);
-          ++outputIterator;
-        }
-        else
-        {
-          ++outputIterator;
-          doneFirstPixel = true;
-        }
-      }
-      outputIterator.NextLine();
-    }
-  }
+//       while( !outputIterator.IsAtEndOfLine() )
+//       {
+//         if(doneFirstPixel == true)
+//         {
+//           val += outputIterator.Get();
+//           outputIterator.Set(val);
+//           ++outputIterator;
+//         }
+//         else
+//         {
+//           ++outputIterator;
+//           doneFirstPixel = true;
+//         }
+//       }
+//       outputIterator.NextLine();
+//     }
+//   }
 
-  t2=clock();
-  diff = ((float)t2-(float)t1);
-  std::cout<<"Summation Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+  // t2=clock();
+  // diff = ((float)t2-(float)t1);
+  // std::cout<<"Summation Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
 
 /*
   //perform 3D summation with neighborhood iterators

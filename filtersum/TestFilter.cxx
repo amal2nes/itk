@@ -56,6 +56,20 @@ int main(int argc, char **argv)
   writer->SetInput(filter->GetOutput());
 */
 
+  reader->Update();
+
+  clock_t t1,t2;
+  float diff;
+
+  t1=clock();
+  filter->Update();
+
+
+  t2=clock();
+  diff = ((float)t2-(float)t1);
+  std::cout<<"Summation Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+
+
   try
     {
     writer->Update();
