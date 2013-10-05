@@ -3,7 +3,9 @@
 
 #include "RandomBox.h"
 #include <stdlib.h>
-#include <time.h>
+
+#include <random>
+#include <chrono>
 
 RandomBox::RandomBox()
 {
@@ -24,8 +26,11 @@ void RandomBox::setParameters(int w, int h, int d, int numBox, int sizeMin, int 
   boxSizeMax = sizeMax;
 }
 
-*int RandomBox::getRandomBoxes(int x, int y, int z, int distance)
+int ** RandomBox::getRandomBoxes(int x, int y, int z, int distance)
 {
+  if(x >= dimension[0] || y >= dimension[1] || z >= dimension[2])
+    return NULL;
+
   int** outBoxes = new int*[numBox]; // [y][x]
   for(int i = 0; i < numBox; i++)
   {
@@ -45,40 +50,45 @@ void RandomBox::setParameters(int w, int h, int d, int numBox, int sizeMin, int 
   {
     for(int j = 0; j < 2; j++)	// lower, upper
     {
-      if(j == 0)
-      {
-        temp = reference[i] - distance;
+      temp = reference[i] - distance;
 
-        if(temp >= 0)
-	  limits[i][j] = temp;
-	else
-	  limits[i][j] = 0;
+      if(temp >= 0)
+        limits[i][0] = temp;
+      else
+        limits[i][0] = 0;
 	
-	temp = reference[i] + distance + boxSizeMax;
+      temp = reference[i] + distance + boxSizeMax;
 
-	if(temp < dimension[i])
-	  limits[i][j] = temp;
-	else
-	  limits[i][j] = dimension[i] - 1;
-      }
+      if(temp < dimension[i])
+        limits[i][1] = temp;
+      else
+        limits[i][1] = dimension[i] - 1;
+     
     }
   }
+
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+     
+  std::default_random_engine generator(seed);
 
   for(int i = 0; i < numBox; i++) // make boxes
   {
     for(int j = 0; j < 3; j++)	// for each dimension
     {
-      //seed random generator
-      srand (time(NULL));
+
+      std::uniform_real_distribution<double> distribution(limits[j][0], limits[j][1]);
+
+      distribution.reset();
 
       //generate number within limits
-      int position = (rand() % (limits[j][1] - limits[j][0]))/2 + reference[j];
+      int position = (int)(distribution(generator) + 0.5);
       outBoxes[i][j] = position;
 
-      //seed random generator
-      srand (time(NULL));
+      std::uniform_real_distribution<double> distribution2(boxSizeMin, boxSizeMax);
 
-      int dim = rand() % (sizeMax - sizeMin) + sizeMin;
+      distribution2.reset();
+
+      int dim = (int)(distribution2(generator) + 0.5);
       outBoxes[i][j+3] = dim;
     }
   }
