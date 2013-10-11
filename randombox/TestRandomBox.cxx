@@ -12,7 +12,7 @@ int main()
 {
 
   std::ofstream myfile;
-  myfile.open ("result_8.csv");
+  myfile.open ("result_8.csv"/*, std::ofstream::app*/);
 
   RandomBox boxes;
 

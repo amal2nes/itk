@@ -63,11 +63,9 @@ int ** RandomBox::getRandomBoxes(int targetCoord[], int distance, int numBox)
     for(int j = 0; j < 3; j++)       
     {
       
-      std::uniform_real_distribution<double> distribution2(boxSizeMin[j], boxSizeMax[j]); // box
-											  // size distribution
+      std::uniform_real_distribution<double> distribution2(boxSizeMin[j], boxSizeMax[j]); // box size distribution
       int size;
 
-      distribution2.reset();
       size = (int)(distribution2(generator) + 0.5); // generate box size
 
       outBoxes[i][j+3] = size;	// save box size
@@ -76,12 +74,10 @@ int ** RandomBox::getRandomBoxes(int targetCoord[], int distance, int numBox)
       int limitLow = (targetCoord[j] - distance >= 0)? targetCoord[j] - distance : 0;
       int limitHigh = (targetCoord[j] + distance + (size-1) < dimension[j])? targetCoord[j] + distance : dimension[j] - size;
       
-      std::uniform_real_distribution<double> distribution(limitLow, limitHigh); // box
-										// position distribution
+      std::uniform_real_distribution<double> distribution(limitLow, limitHigh); // box position distribution
 
       int position;
       
-      distribution.reset();
       position = (int)(distribution(generator) + 0.5); // generate box position
   
       outBoxes[i][j] = position; // save box position
