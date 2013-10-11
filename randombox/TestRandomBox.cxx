@@ -12,44 +12,57 @@ int main()
 {
 
   std::ofstream myfile;
-  myfile.open ("result.csv");
+  myfile.open ("result_8.csv");
 
   RandomBox boxes;
-  boxes.setParameters(500,500,500, 50, 50, 150);
-for(int d = 0; d < 1000; d++)
-{
-  int ** out = boxes.getRandomBoxes(250,250,250,50);
-  
-  if(out == NULL)
-  {
-    std::cout<<"invalid parameters"<<std::endl;
-    return -1;
-  }
 
-  for(int i = 0; i < 30; i++)
-  {
+  int imageDim[3] = {500, 500, 500};
 
-    std::cout<<i<<": ";
+  int boxSizeMin[3] = {10, 10, 10};
+
+  int boxSizeMax[3] = {100, 100, 100};
+
+  boxes.setParameters(imageDim,boxSizeMin,boxSizeMax);
+
+  int targetCoord[3] = {200, 200, 200};
+  int distance = 100;
+  int numBox = 10000;
+
+  for(int d = 0; d < 1; d++)
+  {
     
-    for(int j = 0; j < 6; j++)
+    int ** out = boxes.getRandomBoxes(targetCoord, distance, numBox);
+  
+    if(out == NULL)
+    {
+      std::cout<<"invalid parameters"<<std::endl;
+      return -1;
+    }
+
+    for(int i = 0; i < numBox; i++)
     {
 
-      std::cout<<out[i][j];
-      if(j != 5)
-	std::cout<<",";
-      else
-	std::cout<<std::endl;
+      std::cout<<i<<": ";
+    
+      for(int j = 0; j < 6; j++)
+      {
 
-      //write to file
-      myfile << out[i][j];
+        std::cout<<out[i][j];
+	if(j != 5)
+	  std::cout<<",";
+	else
+	  std::cout<<std::endl;
+
+	//write to file
+	myfile << out[i][j];
       
-      if(j != 5)
-	myfile << ",";
-      else
-	myfile <<"\n";
+	if(j != 5)
+	  myfile << ",";
+	else
+	  myfile <<"\n";
+      }
     }
-  }
-}  
+  }  
 
   myfile.close();
 

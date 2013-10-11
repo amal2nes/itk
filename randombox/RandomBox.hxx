@@ -6,95 +6,90 @@
 
 #include <random>
 #include <chrono>
+#include <iostream>
 
-RandomBox::RandomBox()
+// Initialize this module
+RandomBox::RandomBox()	      
 {
   for(int i = 0; i < 3; i++)
+  {
     dimension[i] = 0;
-
-  numBox = 1000;
+    boxSizeMin[i] = 0;
+    boxSizeMax[i] = 0;
+  }
 }
 
-void RandomBox::setParameters(int w, int h, int d, int numBox, int sizeMin, int sizeMax)
+// Set the total dimension, box size ranges in x, y, z
+bool RandomBox::setParameters(int dim[], int sizeMin[], int sizeMax[])
 {
-  dimension[0] = w;
-  dimension[1] = h;
-  dimension[2] = d;
-
-  numBox = numBox;
-  boxSizeMin = sizeMin;
-  boxSizeMax = sizeMax;
+  for(int i = 0; i < 3; i++)
+  {
+    if(dim[i] == 0 || sizeMin[i] == 0 || sizeMax[i] == 0)
+    {
+      return false;
+    }
+    dimension[i] = dim[i];
+    boxSizeMin[i] = sizeMin[i];
+    boxSizeMax[i] = sizeMax[i];
+  }
+  return true;
 }
 
-int ** RandomBox::getRandomBoxes(int x, int y, int z, int distance)
+// Generate box data given input location, distance from input location, number of boxes 
+int ** RandomBox::getRandomBoxes(int targetCoord[], int distance, int numBox)
 {
-  if(x >= dimension[0] || y >= dimension[1] || z >= dimension[2])
-    return NULL;
+  // check input target coordinate if it exceeds dimension limits
+  for(int j = 0; j < 3; j++)
+  {
+    if(targetCoord[j] >= dimension[j] || targetCoord[j] < 0 || targetCoord[j] + boxSizeMin[j] >= dimension[j])
+    {
+      return NULL;
+    }
+  }
 
-  int** outBoxes = new int*[numBox]; // [y][x]
+  int** outBoxes = new int*[numBox]; // create boxes with index: [NumberOfBoxes][boxData(x,y,z,dx,dy,dz)]
   for(int i = 0; i < numBox; i++)
   {
     outBoxes[i] = new int[6];
   }
-
-  int limits[3][2];		// [x,y,z][lower,upper]
-
-  int reference[3];		// target location
-  reference[0] = x;
-  reference[1] = y;
-  reference[2] = z;
-
-  int temp;
-
-  for(int i = 0; i < 3; i++)	// dimensions
-  {
-    for(int j = 0; j < 2; j++)	// lower, upper
-    {
-      temp = reference[i] - distance;
-
-      if(temp >= 0)
-        limits[i][0] = temp;
-      else
-        limits[i][0] = 0;
-	
-      temp = reference[i] + distance + boxSizeMax;
-
-      if(temp < dimension[i])
-        limits[i][1] = temp;
-      else
-        limits[i][1] = dimension[i] - 1;
-     
-    }
-  }
-
+  
+  //random number generator
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
      
   std::default_random_engine generator(seed);
 
-  for(int i = 0; i < numBox; i++) // make boxes
+  for(int i = 0; i < numBox; i++)    // For each random box
   {
-    for(int j = 0; j < 3; j++)	// for each dimension
+    for(int j = 0; j < 3; j++)       
     {
-
-      std::uniform_real_distribution<double> distribution(limits[j][0], limits[j][1]);
-
-      distribution.reset();
-
-      //generate number within limits
-      int position = (int)(distribution(generator) + 0.5);
-      outBoxes[i][j] = position;
-
-      std::uniform_real_distribution<double> distribution2(boxSizeMin, boxSizeMax);
+      
+      std::uniform_real_distribution<double> distribution2(boxSizeMin[j], boxSizeMax[j]); // box
+											  // size distribution
+      int size;
 
       distribution2.reset();
+      size = (int)(distribution2(generator) + 0.5); // generate box size
 
-      int dim = (int)(distribution2(generator) + 0.5);
-      outBoxes[i][j+3] = dim;
+      outBoxes[i][j+3] = size;	// save box size
+
+      // limits of box positions based on image dimension and box size
+      int limitLow = (targetCoord[j] - distance >= 0)? targetCoord[j] - distance : 0;
+      int limitHigh = (targetCoord[j] + distance + (size-1) < dimension[j])? targetCoord[j] + distance : dimension[j] - size;
+      
+      std::uniform_real_distribution<double> distribution(limitLow, limitHigh); // box
+										// position distribution
+
+      int position;
+      
+      distribution.reset();
+      position = (int)(distribution(generator) + 0.5); // generate box position
+  
+      outBoxes[i][j] = position; // save box position
+
     }
   }
   
   return outBoxes;
-
 }
 
 #endif

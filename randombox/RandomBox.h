@@ -3,14 +3,15 @@
 
 class RandomBox{
 private:
-  int dimension[3];
-  int numBox;
-  int boxSizeMin;
-  int boxSizeMax;
+  int dimension[3];		// max dimension
+  int boxSizeMin[3];		// minimum box dimension per axis
+  int boxSizeMax[3];		// maximum box dimension per axis
 public:
   RandomBox();
-  int** getRandomBoxes(int x, int y, int z, int distance);
-  void setParameters(int w, int h, int d, int numBox, int sizeMin, int sizeMax);
+  // gets positional data of random boxes: [BoxNum][BoxData(x,y,z,dx,dy,dz)]
+  int** getRandomBoxes(int targetCoord[], int distance, int numBox);
+  // Sets module properties: max dimensions, box size ranges
+  bool setParameters(int dim[], int sizeMin[], int sizeMax[]);
 };
 
 #include "RandomBox.hxx"
