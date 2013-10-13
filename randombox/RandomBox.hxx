@@ -11,47 +11,14 @@
 // Initialize this module
 RandomBox::RandomBox()	      
 {
-  for(int i = 0; i < 3; i++)
-  {
-    dimension[i] = 0;
-    boxSizeMin[i] = 0;
-    boxSizeMax[i] = 0;
-  }
-}
 
-// Set the total dimension, box size ranges in x, y, z
-bool RandomBox::setParameters(int dim[], int sizeMin[], int sizeMax[])
-{
-  for(int i = 0; i < 3; i++)
-  {
-    if(dim[i] == 0 || sizeMin[i] == 0 || sizeMax[i] == 0)
-    {
-      return false;
-    }
-    dimension[i] = dim[i];
-    boxSizeMin[i] = sizeMin[i];
-    boxSizeMax[i] = sizeMax[i];
-  }
-  return true;
 }
 
 // Generate box data given input location, distance from input location, number of boxes 
-int ** RandomBox::getRandomBoxes(int targetCoord[], int distance, int numBox)
+int * RandomBox::getRandomBoxes(int minL[], int maxL[], int distance[], int numBox)
 {
-  // check input target coordinate if it exceeds dimension limits
-  for(int j = 0; j < 3; j++)
-  {
-    if(targetCoord[j] >= dimension[j] || targetCoord[j] < 0 || targetCoord[j] + boxSizeMin[j] >= dimension[j])
-    {
-      return NULL;
-    }
-  }
 
-  int** outBoxes = new int*[numBox]; // create boxes with index: [NumberOfBoxes][boxData(x,y,z,dx,dy,dz)]
-  for(int i = 0; i < numBox; i++)
-  {
-    outBoxes[i] = new int[6];
-  }
+  int* outBoxes = new int[numBox*6]; // create array of boxes with data x,y,z,lx,ly,lz
   
   //random number generator
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -62,30 +29,79 @@ int ** RandomBox::getRandomBoxes(int targetCoord[], int distance, int numBox)
   {
     for(int j = 0; j < 3; j++)       
     {
+      std::uniform_real_distribution<double> distributionDistance(-1*distance[j], distance[j]); // box distance distribution
       
-      std::uniform_real_distribution<double> distribution2(boxSizeMin[j], boxSizeMax[j]); // box size distribution
-      int size;
-
-      size = (int)(distribution2(generator) + 0.5); // generate box size
-
-      outBoxes[i][j+3] = size;	// save box size
-
-      // limits of box positions based on image dimension and box size
-      int limitLow = (targetCoord[j] - distance >= 0)? targetCoord[j] - distance : 0;
-      int limitHigh = (targetCoord[j] + distance + (size-1) < dimension[j])? targetCoord[j] + distance : dimension[j] - size;
-      
-      std::uniform_real_distribution<double> distribution(limitLow, limitHigh); // box position distribution
-
-      int position;
-      
-      position = (int)(distribution(generator) + 0.5); // generate box position
+      int position = (int)(distributionDistance(generator) + 0.5); // generate box offset
   
-      outBoxes[i][j] = position; // save box position
+      outBoxes[i*6 + j] = position; // save box offset
 
+      std::uniform_real_distribution<double> distributionLength(minL[j], maxL[j]); // box size distribution
+
+      int size = (int)(distributionLength(generator) + 0.5); // generate box size
+
+      outBoxes[i*6 + j + 3] = size;	// save box size
     }
   }
   
   return outBoxes;
+}
+
+int* RandomBox::getRandomBoxIntegral(int dim[], const int* targetCoord, int numTargetCoord, const int* randomBoxes, int numRandomBoxes)
+{
+  //temporary containers
+  int coord[3];
+  int randomBoxData[6];
+
+  int* output = new int[numTargetCoord * numRandomBoxes]; // output initialization
+
+  for(int i = 0; i < numTargetCoord; i++) // for each input coordinate
+  {
+    for(int j = 0; j < 3; j++)
+    {
+      coord[j] = targetCoord[i*3 + j]; // get the coordinate
+    }
+
+    for(int k = 0; k < numRandomBoxes; k++) // for each random box
+    {
+      for(int m = 0; m < 6; m++)
+      {
+        randomBoxData[m] = randomBoxes[k*6 + m]; // get random box data
+      }
+      
+      //check if position is out of bounds
+      bool outOfBounds = false;
+      for(int x = 0; x < 3; x++)
+      {
+        int pos = coord[x] + randomBoxData[x];
+	int posPlusLength = pos + randomBoxData[x+3];
+        if(pos >= dim[x] || pos < 0 || posPlusLength >= dim[x])
+	{
+  	  outOfBounds = true;
+	  break;
+	}
+      }
+
+      // compute integral
+      if(!outOfBounds)
+      {
+        output[i*k + k] = 1;
+      }
+      else
+      {
+        output[i*k + k] = 99999;
+      }
+      
+      // std::cout<<"input coord: "<<coord[0]<<","<<coord[1]<<","<<coord[2]<<" box data: ";
+      
+      // for(int n = 0; n < 5; n++)
+      // {
+      // std::cout<<randomBoxData[n]<<",";
+      // }
+      // std::cout<<randomBoxData[5]<<std::endl;
+
+    }
+  }
+  return output;
 }
 
 #endif
