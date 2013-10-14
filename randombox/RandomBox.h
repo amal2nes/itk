@@ -1,15 +1,15 @@
 #ifndef __RandomBox_h
 #define __RandomBox_h
 
-class RandomBox{
-private:
+// gets random boxes: x,y,z,lx,ly,lz
+int* getRandomBoxes(int minL[], int maxL[], int distance[], int numBox);
 
-public:
-  RandomBox();
-  // gets random boxes: x,y,z,lx,ly,lz
-  static int* getRandomBoxes(int minL[], int maxL[], int distance[], int numBox);
-  static int* getRandomBoxIntegral(int dim[], const int* targetCoord, int numTargetCoord, const int* randomBoxes, int numRandomBoxes);
-};
+int getIndexFromXYZ(const int* dim, const int* boxVertice); // convert from
+						  // x,y,z to image
+						  // data index
+
+template< class dataType>
+int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, const int* randomBoxes, int numRandomBoxes, dataType data);
 
 #include "RandomBox.hxx"
 
