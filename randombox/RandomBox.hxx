@@ -85,10 +85,11 @@ int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, 
 	} 
       }
 
-      // compute integral
       if(!outOfBounds)
       {
         int box[8][3] = {}; //stores 8 vertice coordinates of the box
+	
+	// set coordinates of 8 vertices of the current box
 	box[0][0] = coord[0] + randomBoxData[0];
 	box[0][1] = coord[1] + randomBoxData[1];
 	box[0][2] = coord[2] + randomBoxData[2];
@@ -123,7 +124,6 @@ int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, 
 
 	int indexes[8];
 	int integrals[8];
-	
 	int currentBox[3];
 	
 	for(int z = 0; z < 8; z++)
@@ -132,13 +132,14 @@ int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, 
 	  {
 	    currentBox[g] = box[z][g];
 	  }
+	  // convert image index from x,y,z 
   	  indexes[z] = getIndexFromXYZ(dim,currentBox);
 	  integrals[z] = data[indexes[z]];
 	}
-	
+	//compute integral of the current box
         output[i*k + k] = integrals[0] - integrals[1] - integrals[2] + integrals[3] - integrals[4] + integrals[5] + integrals[6] - integrals[7];
       }
-      else
+      else			// if out of bounds
       {
         output[i*k + k] = 999999;
       }
