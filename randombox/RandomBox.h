@@ -1,16 +1,15 @@
 #ifndef __RandomBox_h
 #define __RandomBox_h
 
-// gets random boxes: x,y,z,lx,ly,lz
+// gets an array of random boxes with data: x,y,z,lx,ly,lz
 int* getRandomBoxes(int* minL, int* maxL, int* distance, int numBox);
 
-int getIndexFromXYZ(const int* dim, const int* boxVertice); // convert from
-						  // x,y,z to image
-						  // data index
+// convert input x,y,z coordinates (0 indexed) to a linear index (0 indexed)
+int getIndexFromXYZ(const int* dim, const int* boxVertice);
 
-//calculates integral based on target coordinate and random boxes
+//calculates average integral based on target coordinates and random boxes
 template< class dataType>
-int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, const int* randomBoxes, int numRandomBoxes, dataType data);
+double* getRandomBoxIntegral(const int* dim, const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType data);
 
 #include "RandomBox.hxx"
 

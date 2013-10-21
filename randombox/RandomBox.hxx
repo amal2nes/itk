@@ -4,41 +4,29 @@
 #include "RandomBox.h"
 #include <stdlib.h>
 
-//#include <random>
-//#include <chrono>
 #include <iostream>
 
 #include <time.h>       
 
-// Generate box data given input location, distance from input location, number of boxes 
+// Generate box data from min and max box dimensions (lx,ly,lz), offset (ox,oy,oz), number of boxes 
 int * getRandomBoxes(int minL[], int maxL[], int distance[], int numBox)
 {
 
-  int* outBoxes = new int[numBox*6]; // create array of boxes with data x,y,z,lx,ly,lz
+  int* outBoxes = new int[numBox*6]; // create array of boxes with data ox,oy,oz,lx,ly,lz
   
-  // //random number generator
-  // unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-     
-  // std::default_random_engine generator(seed);
-  
+  //seed random generator
   srand(time(NULL));
 
-  for(int i = 0; i < numBox; i++)    // For each random box
+  for(int i = 0; i < numBox; i++) 
   {
     for(int j = 0; j < 3; j++)       
-    {
-      // std::uniform_real_distribution<double> distributionDistance(-1*distance[j], distance[j]); // box distance distribution
-      
-      // int position = (int)(distributionDistance(generator) + 0.5); // generate box offset
-  
+    {  
+      // offset generation
       int position = (int)(rand()%(2*distance[j] + 1) -1*distance[j]);
 
       outBoxes[i*6 + j] = position; // save box offset
-
-      // std::uniform_real_distribution<double> distributionLength(minL[j], maxL[j]); // box size distribution
-
-      // int size = (int)(distributionLength(generator) + 0.5); // generate box size
-      
+ 
+      // size generation
       int size = (int)((rand()%(maxL[j] - minL[j] + 1)) + minL[j]);
 
       outBoxes[i*6 + j + 3] = size;	// save box size
@@ -48,28 +36,38 @@ int * getRandomBoxes(int minL[], int maxL[], int distance[], int numBox)
   return outBoxes;
 }
 
-
+// generate an array of row-based m x n matrix, m = number of target coordinates,n = number of random boxes
+// dim = size of image (SizeX,SizeY,SizeZ)
+// targetCoord = array of input coordinates (x,y,z)'s
+// numTargetCoord = number of coordinate sets
+// randomBoxes = array of random boxes (ox,oy,oz,lx,ly,lz)'s
+// numRandomBoxes = number of random boxes
+// data = pointer to image data
 template< class dataType>
-int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, const int* randomBoxes, int numRandomBoxes, dataType data)
+double* getRandomBoxIntegral(const int* dim, const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType data)
 {
   //temporary containers
   int coord[3];
   int randomBoxData[6];
 
-  int* output = new int[numTargetCoord * numRandomBoxes]; // output initialization
+  double* output = new double[numTargetCoord * numRandomBoxes]; // output initialization
 
-  for(int i = 0; i < numTargetCoord; i++) // for each input coordinate
+  // for each input coordinate
+  for(int i = 0; i < numTargetCoord; i++) 
   {
+    // get current target coordinate (x,y,z)
     for(int j = 0; j < 3; j++)
     {
-      coord[j] = targetCoord[i*3 + j]; // get the coordinate
+      coord[j] = targetCoord[i*3 + j]; 
     }
 
-    for(int k = 0; k < numRandomBoxes; k++) // for each random box
+    // for each random box
+    for(int k = 0; k < numRandomBoxes; k++) 
     {
+      // get current random box data (ox,oy,oz,lx,ly,lz)
       for(int m = 0; m < 6; m++)
       {
-        randomBoxData[m] = randomBoxes[k*6 + m]; // get random box data
+        randomBoxData[m] = randomBoxes[k*6 + m]; 
       }
      
       //check if position is out of bounds
@@ -84,10 +82,11 @@ int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, 
 	  break;
 	} 
       }
-
+      
+      // compute integral if not out of bounds
       if(!outOfBounds)
       {
-        int box[8][3] = {}; //stores 8 vertice coordinates of the box
+        int box[8][3]; //stores 8 vertice coordinates of the box
 	
 	// set coordinates of 8 vertices of the current box
 	box[0][0] = coord[0] + randomBoxData[0];
@@ -123,7 +122,7 @@ int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, 
 	box[7][2] = coord[2] + randomBoxData[2] + randomBoxData[5];
 
 	int indexes[8];
-	int integrals[8];
+	double integrals[8];
 	int currentBox[3];
 	
 	for(int z = 0; z < 8; z++)
@@ -134,14 +133,17 @@ int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, 
 	  }
 	  // convert image index from x,y,z 
   	  indexes[z] = getIndexFromXYZ(dim,currentBox);
-	  integrals[z] = data[indexes[z]];
+	  integrals[z] = (double)data[indexes[z]];
 	}
-	//compute integral of the current box
-        output[i*k + k] = integrals[0] - integrals[1] - integrals[2] + integrals[3] - integrals[4] + integrals[5] + integrals[6] - integrals[7];
-      }
-      else			// if out of bounds
+	//compute average integral of the current box
+        output[i*numRandomBoxes + k] = (-integrals[0] + integrals[1] + integrals[2] - integrals[3] + integrals[4] - integrals[5] - integrals[6] + integrals[7]) / (randomBoxData[3]*randomBoxData[4]*randomBoxData[5]);
+      }// end of box integral 
+
+      // if out of bounds
+      else		       
       {
-        output[i*k + k] = 999999;
+        // set some value
+        output[i*numRandomBoxes + k] = 1e16;
       }
     }
   }
@@ -149,6 +151,7 @@ int* getRandomBoxIntegral(int* dim, const int* targetCoord, int numTargetCoord, 
   return output;
 }
 
+// convert input x,y,z coordinates (0 indexed) to a linear index (0 indexed)
 int getIndexFromXYZ(const int* dim, const int* boxVertice)
 {
   int index;
