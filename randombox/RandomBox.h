@@ -9,7 +9,7 @@ int getIndexFromXYZ(const int* dim, const int* boxVertice);
 
 //calculates average integral based on target coordinates and random boxes
 template< class dataType>
-double* getRandomBoxIntegral(const int* dim, const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType data);
+double* getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType data, const int* dim, bool isMRI);
 
 #include "RandomBox.hxx"
 

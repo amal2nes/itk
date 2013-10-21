@@ -6,19 +6,29 @@
 
 #include "RandomBox.h"
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
 #include <fstream>
+#include <sstream>
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 
-#define NUMBOX 2
-#define NUMTARGETCOORD 2
+#define BOXNUMMAX 10000
+
+#define TARGETCOORDNUMMAX 10000
+
+#define DEBUG
+
+#define TESTNUM 1000
 
 int main(int argc, char **argv)
 {
+  srand(time(NULL));
+     
   if(argc < 2)
   {
-    std::cout<<"need atleast 1 input file path"<<std::endl;
+    std::cout<<"need input file path"<<std::endl;
     return -1;
   }
 
@@ -28,87 +38,147 @@ int main(int argc, char **argv)
   ReaderType::Pointer reader = ReaderType::New();
 
   reader->SetFileName(argv[1]);
-
   reader->Update();
-
-  std::ofstream fileRandomBoxes, fileIntegral;
-
-  fileRandomBoxes.open("randomBoxes.csv"/*, std::ofstream::app*/);
-  fileIntegral.open("integralBoxes.csv");
-
-  int boxSizeMin[3] = {1, 1, 1};
-
-  int boxSizeMax[3] = {5, 5, 5};
-
-  int distance[3] = {10, 10, 10};
-
-  // int targetCoord[NUMTARGETCOORD*3] = {50,50,50,270,250,140,300,300,300};
-  int targetCoord[NUMTARGETCOORD*3] = {1, 2, 9, 4, 24, 19};
-
-  int dim[3];
 
   //get size of image
   typename ImageType::SizeType inputSize = reader->GetOutput()->GetLargestPossibleRegion().GetSize();
+
+  int dim[3];
   
   for(int y = 0; y < 3; y++)
   {
     dim[y] = inputSize[y];
   }  
 
-  // generate random boxes
-  //int * out = getRandomBoxes(boxSizeMin, boxSizeMax, distance, NUMBOX);
-  int testBoxes[NUMBOX*6] = { 0, 0, 0, 4, 4, 4, 0, 0, 0, 4, 8, 12};
-  int * out = testBoxes;
-
-  if(out == NULL)
-  {
-    std::cout<<"invalid parameters"<<std::endl;
-    return -1;
-  }
-
-  // get integral of boxes using target coordinates
-  // float * integral = getRandomBoxIntegral<const float*>(dim, targetCoord, NUMTARGETCOORD, out, NUMBOX, reader->GetOutput()->GetBufferPointer());
-
-  double * integral = getRandomBoxIntegral<const double*>(dim, targetCoord, NUMTARGETCOORD, out, NUMBOX, reader->GetOutput()->GetBufferPointer());
-
-  // std::cout<<"integral image first voxel intensity: "<<reader->GetOutput()->GetBufferPointer()[0]<<std::endl;
-
-#ifdef DEBUG
-  std::cout<<"point (2,3,10), length(4,4,4): "<<integral[0]<<std::endl;
-  std::cout<<"point (5,25,20), length(4,8,12): "<<integral[3]<<std::endl;
-#endif
-
-  //write integral to file
-  for(int k = 0; k < NUMTARGETCOORD; k++)
-  {
-    for(int o = 0; o < NUMBOX; o++)
-    {
-      fileIntegral << integral[k*o + o];
-      
-      if(o != NUMBOX -1)
-	fileIntegral << ",";
-      else
-	fileIntegral << "\n";
-    }
-  }
-
-  fileIntegral.close();
-
-  //write random box offset and length data to file
-  for(int i = 0; i < NUMBOX; i++)
-  {
-    for(int j = 0; j < 6; j++)
-    {    
-      fileRandomBoxes << out[i*6 + j];
-      
-      if(j != 5)
-	fileRandomBoxes << ",";
-      else
-	fileRandomBoxes <<"\n";
-    }
-  }
+  //debug file to save data
+  std::ofstream fileRandomBoxes, fileIntegral[2], fileTiming;
   
-  fileRandomBoxes.close();
+  fileRandomBoxes.open("randomBoxes.csv", std::ofstream::app);
+  fileIntegral[0].open("integralBoxes_MRI.csv", std::ofstream::app);
+  fileIntegral[1].open("integralBoxes_NoMRI.csv", std::ofstream::app);
+  fileTiming.open("timing.csv", std::ofstream::app);
 
+  fileTiming<<"dim x, dim y, dim z, size min x, size min y, size min z, size max x, size max y, size max z, dist x, dist y, dist z, num target coord, num box, isMRI?, time(ms)"<<std::endl;
+
+  for(int testNum = 0; testNum <  TESTNUM; testNum++)
+  {
+    int boxSizeMin[3];
+    int boxSizeMax[3];
+    int distance[3];
+    int numTargCoord;
+    int numBox;
+    int* targetCoord;
+
+    for(int i = 0; i<3; i++)
+    {
+      boxSizeMin[i] = rand()%(dim[i]) + 1;
+      boxSizeMax[i] = rand()%(dim[i]-boxSizeMin[i]) + boxSizeMin[i];
+      distance[i] = rand()%(dim[i]) + 1;      
+    }
+
+    numBox = rand()%(BOXNUMMAX) + 1;
+    numTargCoord = rand()%(TARGETCOORDNUMMAX) + 1;
+    targetCoord = new int[numTargCoord*3];
+
+    for(int i = 0; i < numTargCoord; i++)
+    {
+      targetCoord[i*3] = rand()%(dim[0]);
+      targetCoord[i*3+1] = rand()%(dim[1]);
+      targetCoord[i*3+2] = rand()%(dim[2]);
+    }
+
+    // generate random boxes    
+    int * out = getRandomBoxes(boxSizeMin, boxSizeMax, distance, numBox);
+    
+    if(out == NULL)
+    {
+      std::cout<<"invalid parameters"<<std::endl;
+      return -1;
+    }
+
+    //generate data for MRI and no MRI
+    bool isMRI[2];
+
+    isMRI[0] = true;
+    isMRI[1] = false;
+
+    for(int i = 0; i < 2; i++)
+    {
+
+      clock_t t1,t2;
+      double diff;
+      
+      // start timing
+      t1=clock();
+     
+      double * integral = getRandomBoxIntegral<const double*>(targetCoord, numTargCoord, out, numBox, reader->GetOutput()->GetBufferPointer(), dim, isMRI[i]);
+  
+      //end timing
+      t2=clock();
+      diff = ((double)t2-(double)t1);
+
+      for(int j = 0; j < 3; j++)
+      {
+        fileTiming<<dim[j]<<",";
+      }
+      for(int j = 0; j < 3; j++)
+      {
+        fileTiming<<boxSizeMin[j]<<",";
+      }
+      for(int j = 0; j < 3; j++)
+      {
+        fileTiming<<boxSizeMax[j]<<",";
+      }
+      for(int j = 0; j < 3; j++)
+      {
+        fileTiming<<distance[j]<<",";
+      }
+      fileTiming<<numTargCoord<<","<<numBox<<",";
+      fileTiming<<isMRI[i]<<",";
+      fileTiming<<diff/CLOCKS_PER_SEC*1000<<std::endl;
+          
+      int finalNumBox = isMRI[i] ? numBox/2: numBox;
+
+      //write integral to file
+      for(int k = 0; k < numTargCoord; k++)
+      {
+        for(int o = 0; o < finalNumBox; o++)
+        {
+          fileIntegral[i] << integral[k*o + o];
+      
+	  if(o != finalNumBox -1)
+	    fileIntegral[i] << ",";
+	  else
+	    fileIntegral[i] << "\n";
+	}
+      }
+      delete [] integral;
+    }
+
+    //write random box offset and length data to file
+    for(int i = 0; i < numBox; i++)
+    {
+      for(int j = 0; j < 6; j++)
+      {    
+        fileRandomBoxes << out[i*6 + j];
+      
+	if(j != 5)
+	  fileRandomBoxes << ",";
+	else
+	  fileRandomBoxes <<"\n";
+      }
+    }  
+    delete [] out;
+    delete [] targetCoord;
+
+    std::cout<<"test# "<<testNum+1<<"/"<<TESTNUM<<std::endl;
+      
+  }// of testNum loop 
+ 
+  fileIntegral[0].close();
+  fileIntegral[1].close();
+  fileRandomBoxes.close();
+  fileTiming.close(); 
+  
   return 0;
 }
