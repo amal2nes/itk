@@ -1,3 +1,7 @@
+// A module for generating a volume summation of the input image.
+// This follows ITK examples and GenerateData function is implemented
+// for this SummationImageFilter. Input and output image typedefs are declared.
+
 #ifndef __SummationImageFilter_h
 #define __SummationImageFilter_h
 
@@ -6,6 +10,8 @@
 #include "itkNeighborhoodIterator.h"
 #include "itkImageRegionIterator.h"
 #include "itkConstantBoundaryCondition.h"
+
+//#define DEBUG //debugging message
 
 namespace itk{
 
@@ -29,17 +35,7 @@ public:
   typedef TInputImage                           InputImageType;
   typedef TOutputImage                          OutputImageType;
   typedef typename OutputImageType::Pointer     OutputImagePointer;
-  typedef typename InputImageType::Pointer      InputImagePointer;
   typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef itk::Image< double, 3 > ImageTypeDouble;
-  typedef typename ImageTypeDouble::Pointer ImageTypeDoublePointer;
-
-  typedef itk::ConstantBoundaryCondition<ImageTypeDouble> BoundaryConditionType;
-
-  typedef itk::NeighborhoodIterator<ImageTypeDouble,BoundaryConditionType> NeighborhoodIteratorType;
-  typedef itk::ImageRegionIterator< ImageTypeDouble> IteratorType;
-  typedef typename NeighborhoodIteratorType::RadiusType RadiusType;
-  typedef typename NeighborhoodIteratorType::OffsetType OffsetType;
 
 protected:
   SummationImageFilter();
