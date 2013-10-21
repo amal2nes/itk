@@ -18,17 +18,17 @@
 
 #define TARGETCOORDNUMMAX 10000
 
-#define DEBUG
+//#define DEBUG
 
-#define TESTNUM 1000
+#define TESTNUM 10000
 
 int main(int argc, char **argv)
 {
   srand(time(NULL));
      
-  if(argc < 2)
+  if(argc < 3)
   {
-    std::cout<<"need input file path"<<std::endl;
+    std::cout<<"need input file path and output folder path"<<std::endl;
     return -1;
   }
 
@@ -52,11 +52,10 @@ int main(int argc, char **argv)
 
   //debug file to save data
   std::ofstream fileRandomBoxes, fileIntegral[2], fileTiming;
-  
-  fileRandomBoxes.open("randomBoxes.csv", std::ofstream::app);
-  fileIntegral[0].open("integralBoxes_MRI.csv", std::ofstream::app);
-  fileIntegral[1].open("integralBoxes_NoMRI.csv", std::ofstream::app);
-  fileTiming.open("timing.csv", std::ofstream::app);
+  fileRandomBoxes.open((std::string(argv[2]) + std::string("/randomBoxes.csv")).c_str(), std::ofstream::app);
+  fileIntegral[0].open((std::string(argv[2]) + std::string("/integralBoxes_MRI.csv")).c_str(), std::ofstream::app);
+  fileIntegral[1].open((std::string(argv[2]) + std::string("/integralBoxes_NoMRI.csv")).c_str(), std::ofstream::app);
+  fileTiming.open((std::string(argv[2]) + std::string("/timing.csv")).c_str(), std::ofstream::app);
 
   fileTiming<<"dim x, dim y, dim z, size min x, size min y, size min z, size max x, size max y, size max z, dist x, dist y, dist z, num target coord, num box, isMRI?, time(ms)"<<std::endl;
 
@@ -71,7 +70,7 @@ int main(int argc, char **argv)
 
     for(int i = 0; i<3; i++)
     {
-      boxSizeMin[i] = rand()%(dim[i]) + 1;
+      boxSizeMin[i] = rand()%(dim[i]-1) + 1;
       boxSizeMax[i] = rand()%(dim[i]-boxSizeMin[i]) + boxSizeMin[i];
       distance[i] = rand()%(dim[i]) + 1;      
     }
@@ -138,7 +137,7 @@ int main(int argc, char **argv)
       fileTiming<<diff/CLOCKS_PER_SEC*1000<<std::endl;
           
       int finalNumBox = isMRI[i] ? numBox/2: numBox;
-
+#ifdef DEBUG
       //write integral to file
       for(int k = 0; k < numTargCoord; k++)
       {
@@ -152,9 +151,10 @@ int main(int argc, char **argv)
 	    fileIntegral[i] << "\n";
 	}
       }
+#endif
       delete [] integral;
     }
-
+#ifdef DEBUG
     //write random box offset and length data to file
     for(int i = 0; i < numBox; i++)
     {
@@ -168,6 +168,7 @@ int main(int argc, char **argv)
 	  fileRandomBoxes <<"\n";
       }
     }  
+#endif
     delete [] out;
     delete [] targetCoord;
 
