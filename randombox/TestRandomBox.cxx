@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     return -1;
   }
 
-  typedef itk::Image< double, 3 > ImageType;
+  typedef itk::Image< char, 3 > ImageType;
   typedef itk::ImageFileReader<ImageType> ReaderType;
  
   ReaderType::Pointer reader = ReaderType::New();
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
       // start timing
       t1=clock();
      
-      double * integral = getRandomBoxIntegral<const double*>(targetCoord, numTargCoord, out, numBox, reader->GetOutput()->GetBufferPointer(), dim, isMRI[i]);
+      double * integral = getRandomBoxIntegral<const ImageType::PixelType *>(targetCoord, numTargCoord, out, numBox, reader->GetOutput()->GetBufferPointer(), dim, isMRI[i]);
   
       //end timing
       t2=clock();
