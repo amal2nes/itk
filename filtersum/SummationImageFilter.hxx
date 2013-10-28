@@ -32,8 +32,8 @@ SummationImageFilter< TInputImage, TOutputImage>
 template< class TInputImage, class TOutputImage>
 void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
 {
-  clock_t t1,t2;
-  float diff;
+  clock_t t1,t2,t3,t4;
+  float diff, timeIf;
 
   // start timing
   t1=clock();
@@ -173,6 +173,7 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
        std::cout<<"voxel intensity at 10,20,30: "<<*out[0]<<std::endl;
 #endif
 
+    t3 = clock();
     // increment pointers depending if it's out of bounds or not
     if(i >= 1)			
     {
@@ -202,10 +203,14 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
     	}
       }
     }
+    t4 = clock();
+    timeIf += (float)t4 - (float)t3;
     
     ++out[0];
     ++in;
   } // end main algorithm
+
+  std::cout<<"total time of iterator if statements: "<<timeIf/CLOCKS_PER_SEC<<std::endl;
 
   //show timing
   t2=clock();
