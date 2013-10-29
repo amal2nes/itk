@@ -7,6 +7,14 @@
 #include "itkImageRegionIterator.h"
 #include "itkConstantBoundaryCondition.h"
 
+inline int getIndex(int x, int y, int z, int dims[]);
+
+template <class TOutputPixel>
+inline void sum(int dims[], TOutputPixel * outRaw);
+
+template <class TInputPixel, class TOutputPixel>
+void sumX(int dims[], TInputPixel * inRaw, TOutputPixel * outRaw);
+
 namespace itk{
 
 template <class TInputImage, class TOutputImage>

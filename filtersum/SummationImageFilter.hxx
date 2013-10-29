@@ -12,6 +12,51 @@
 
 #include <iostream>
 #include <time.h>
+#include <numeric>
+
+int getIndex(int x, int y, int z, int dims[])
+{
+  return z*(dims[0]*dims[1]) + y*dims[0] + x;
+}
+
+template<class TInputPixel, class TOutputPixel>
+void sumX(int dims[], TInputPixel * inRaw, TOutputPixel * outRaw)
+{
+  for(int index = 0; index < dims[1]*dims[2]; index++)
+  {
+    std::partial_sum(inRaw + index * dims[0], inRaw + index * dims[0] + dims[0], outRaw + index * dims[0]);
+  }
+}
+
+template<class TOutputPixel>
+void sumY(int dims[], TOutputPixel * outRaw)
+{
+  for(int z = 0; z < dims[2]; z++)
+  {
+    for(int x = 0; x < dims[0]; x++)
+    {
+      for(int y = 1; y < dims[1]; y++)
+      {
+        outRaw[z*(dims[0]*dims[1]) + y*dims[0] + x] += outRaw[z*(dims[0]*dims[1]) + (y-1)*dims[0] + x];  
+      }
+    }
+  }
+} 
+
+template<class TOutputPixel>
+void sumZ(int dims[], TOutputPixel * outRaw)
+{
+  for(int x = 0; x < dims[0]; x++)
+  {
+    for(int y = 0; y < dims[1]; y++)
+    {
+      for(int z = 1; z < dims[2]; z++)
+      {   
+        outRaw[z*(dims[0]*dims[1]) + y*dims[0] + x] += outRaw[(z-1)*(dims[0]*dims[1]) + y*dims[0] + x];  
+      }
+    }
+  }
+}
 
 namespace itk{
 
@@ -32,156 +77,58 @@ SummationImageFilter< TInputImage, TOutputImage>
 template< class TInputImage, class TOutputImage>
 void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
 {
-  // clock_t t1,t2;
-  // float diff;
+  clock_t t1,t2;
+  float diff;
 
-//  itkDebugMacro(<< "SummationImageFilter::GenerateData() called");
+  itkDebugMacro(<< "SummationImageFilter::GenerateData() called");
 
   InputImageConstPointer inputPtr  = this->GetInput();
   OutputImagePointer     outputPtr = this->GetOutput();
 
+  typename TInputImage::SizeType inputSize = inputPtr->GetRequestedRegion().GetSize();
+
+  int dims[3];
+  dims[0] = inputSize[0];
+  dims[1] = inputSize[1];
+  dims[2] = inputSize[2];  
+
   outputPtr->SetRegions(inputPtr->GetRequestedRegion());
   outputPtr->Allocate();
 
-  ImageLinearConstIteratorWithIndex<TInputImage> inputIterator(inputPtr, inputPtr->GetRequestedRegion());
-  ImageLinearIteratorWithIndex<TOutputImage> outputIterator(outputPtr, outputPtr->GetRequestedRegion());
-  
-  // t1=clock();
+  typedef typename TInputImage::PixelType TInputPixel;
+  typedef typename TOutputImage::PixelType TOutputPixel;
 
-  inputIterator.SetDirection(0);
-  inputIterator.GoToBegin();
-  outputIterator.SetDirection(0);
-  outputIterator.GoToBegin();
-  
-  bool doneFirstPixel;
+  const TInputPixel* inRaw = inputPtr->GetBufferPointer(); 
+  TOutputPixel* outRaw = outputPtr->GetBufferPointer(); 
 
-  //sum up 1st dimension
-  while( !inputIterator.IsAtEnd() )
-  {
-    doneFirstPixel = false;
-    
-    float val = 0;
-
-    while( !inputIterator.IsAtEndOfLine() )
-    {
-      if(doneFirstPixel == true)
-      {
-	val += inputIterator.Get();
-        outputIterator.Set(val);
-        ++inputIterator;
-        ++outputIterator;
-      }
-      else
-      {
-        outputIterator.Set(inputIterator.Get());
-        ++inputIterator;
-        ++outputIterator;
-        doneFirstPixel = true;
-      }
-    }
-    inputIterator.NextLine();
-    outputIterator.NextLine();
-  }
-
-//sum up other 2 dimensions
-  for(int dir = 1; dir < 3; dir++)
-  {  
-    outputIterator.SetDirection(dir);
-    outputIterator.GoToBegin();
-
-    while( !outputIterator.IsAtEnd() )
-    { 
-
-      doneFirstPixel = false;
-
-      float val = 0;
-    
-      while( !outputIterator.IsAtEndOfLine() )
-      {
-        if(doneFirstPixel == true)
-        {
-          val += outputIterator.Get();
-          outputIterator.Set(val);
-          ++outputIterator;
-        }
-        else
-        {
-          ++outputIterator;
-          doneFirstPixel = true;
-        }
-      }
-      outputIterator.NextLine();
-    }
-  }
-
-  // t2=clock();
-  // diff = ((float)t2-(float)t1);
-  // std::cout<<"Summation Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
-
-/*
-  //perform 3D summation with neighborhood iterators
-
-  //pad boundary to zero
-  RadiusType radius;
-  radius.Fill(1);
-  NeighborhoodIteratorType it( radius, tempPtr, tempPtr->GetLargestPossibleRegion());
-
-  OffsetType offset0 = {{0,0,0}};
-  OffsetType offset1 = {{-1,0,0}};
-  OffsetType offset2 = {{0,-1,0}};
-  OffsetType offset3 = {{-1,-1,0}};
-  OffsetType offset4 = {{0,0,-1}};
-  OffsetType offset5 = {{-1,0,-1}};
-  OffsetType offset6 = {{0,-1,-1}};
-  OffsetType offset7 = {{-1,-1,-1}};
-
-  double sum;
-  double temp[8];
-  
   t1=clock();
 
-  for (it.GoToBegin(); !it.IsAtEnd(); ++it)
-  {   
-    sum = 0;
-
-    temp[0] = it.GetCenterPixel(); 
-    temp[1] = it.GetPixel(offset1); 
-    temp[2] = it.GetPixel(offset2); 
-    temp[3] = -1.0 * it.GetPixel(offset3);
-    temp[4] = it.GetPixel(offset4);
-    temp[5] = -1.0 * it.GetPixel(offset5);
-    temp[6] = -1.0 * it.GetPixel(offset6);
-    temp[7] = it.GetPixel(offset7); 
-
-    for( int i = 0; i < 8; i++)
-    {     
-      sum += temp[i];  
-    }
-
-    it.SetCenterPixel(sum);
-  } 
+  //sum up x
+  sumX(dims, inRaw, outRaw);
 
   t2=clock();
+
   diff = ((float)t2-(float)t1);
-  std::cout<<"sum image: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
-*/
-/*
+  std::cout<<"Time 1: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+
   t1=clock();
 
-  typedef itk::RescaleIntensityImageFilter<ImageTypeDouble, TOutputImage > RescaleFilterType;
-  typename RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
-  rescaler->SetOutputMinimum(0);
-  rescaler->SetOutputMaximum( 3000 );
-  rescaler->SetInput(tempPtr);
-  rescaler->GraftOutput(outputPtr);
-  rescaler->Update();
-  this->GraftOutput( rescaler->GetOutput() );
+  //sum up y
+  sumY(dims, outRaw);
 
   t2=clock();
-  diff = ((float)t2-(float)t1);
-  std::cout<<"rescale image: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
-*/
 
+  diff = ((float)t2-(float)t1);
+  std::cout<<"Time 2: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+
+  t1=clock();
+
+  sumZ(dims, outRaw);
+
+  t2=clock();
+
+  diff = ((float)t2-(float)t1);
+  std::cout<<"Time 3: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
 }
 
 }
