@@ -43,7 +43,7 @@ protected:
   void PrintSelf(std::ostream & os, Indent indent) const;
 
   /** Method for evaluating the implicit function over the image. */
-  void GenerateData();  
+  inline void GenerateData();  
 
 private:
   SummationImageFilter(const Self &); //purposely not implemented

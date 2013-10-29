@@ -61,7 +61,7 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   typename TOutputImage::PixelType sum;
 
   // storing current position
-  unsigned int position; 
+  short int position; 
 
   int divSlice;
   int remainderSlice;
@@ -91,7 +91,7 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   sign[5] = -1;
   sign[6] = -1;
   sign[7] = 1;
-
+ 
   // initialize output pointers
   for(int i = 0; i<8; i++)
   {
@@ -99,7 +99,7 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   }
 
   //main algorithm starts
-  for(int i = 0; i < sizeTotal; i++)
+  for(int i = 0; i < sizeSlice + sizeRow + 1; i++)
   {
     position = 0;
 
@@ -130,7 +130,7 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
       for(int j = 1; j < 8; j++)
       {   
         if(j % 2 != 0)
-	  continue;
+      	  continue;
         sum += sign[j] * (*out[j]);  
       }
       break;
@@ -173,7 +173,6 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
        std::cout<<"voxel intensity at 10,20,30: "<<*out[0]<<std::endl;
 #endif
 
-    t3 = clock();
     // increment pointers depending if it's out of bounds or not
     if(i >= 1)			
     {
@@ -203,19 +202,82 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
     	}
       }
     }
-    t4 = clock();
-    timeIf += (float)t4 - (float)t3;
     
     ++out[0];
     ++in;
   } // end main algorithm
 
-  std::cout<<"total time of iterator if statements: "<<timeIf/CLOCKS_PER_SEC<<std::endl;
+//////////////////////////////////////////////////testing ///////////////
+  //other half of the algorithm starts here
 
-  //show timing
+  t3 = clock();
+
+  for(int i = sizeSlice + sizeRow + 1; i < sizeTotal; i++)
+  {
+    position = 4;
+
+    // get position info
+    // divSlice = i / sizeSlice;   	     // slice
+    remainderSlice = i % sizeSlice; 
+    // divRow = remainderSlice / sizeRow;       // row
+    // remainderRow = remainderSlice % sizeRow; // column
+
+    // if(divSlice >= 1)
+    //   position |= 1 << 2;       // set 3rd bit to 1 if it's not top slice
+    if(remainderSlice / sizeRow > 0)      
+      position |= 2;	// set 2nd bit to 1 if it's not 1st row
+    if(remainderSlice % sizeRow > 0)
+      position |= 1; 	        // set 1st bit to 1 if it's not 1st column
+
+    sum = *in;		// get current input voxel value
+
+    switch(position)
+    {
+    case 7:			// 111 : sum all
+      for(int j = 1; j < 8; j++)
+      {   
+        sum += sign[j] * (*out[j]);  
+      }
+      break;
+    case 5:			// 101: sum all except 1st row
+      for(int j = 1; j < 6; j++)
+      {   
+        if(j == 1 || j == 4 || j == 5)
+	  sum += sign[j] * (*out[j]);  
+      }
+      break;
+    case 6:			// 110: sum all except 1st column 
+      for(int j = 1; j < 7; j++)
+      {   
+        if(j % 2 == 0)
+	  sum += sign[j] * (*out[j]);  
+      }
+      break;
+    default:			// 100: sum all except 1st row and 1st column
+      sum += sign[4] * (*out[4]);  
+      break;
+    }
+    
+    *out[0] = sum;		// set sum to current output voxel
+   
+    for(int j = 0; j < 8; j++)
+    {
+      out[j]++;
+    }
+    in++;
+  } // end main algorithm
+
+  //show timing 
   t2=clock();
+
+  diff = ((float)t3-(float)t1);
+  std::cout<<"Summation 1st half Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+
+  diff = ((float)t2-(float)t3);
+  std::cout<<"Summation 2nd half Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+
   diff = ((float)t2-(float)t1);
-  std::cout<<"Summation Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+  std::cout<<"Summation Total Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
 }
 
 }
