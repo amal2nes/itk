@@ -98,8 +98,9 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
     out[i] = outputPtr->GetBufferPointer(); 
   }
 
+  int i, j;
   //main algorithm starts
-  for(int i = 0; i < sizeSlice + sizeRow + 1; i++)
+  for(i = 0; i < sizeSlice + sizeRow + 1; ++i)
   {
     position = 0;
 
@@ -121,13 +122,13 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
     switch(position)
     {
     case 7:			// 111 : sum all
-      for(int j = 1; j < 8; j++)
+      for(j = 1; j < 8; ++j)
       {   
         sum += sign[j] * (*out[j]);  
       }
       break;
     case 6:			// 110: sum all except 1st column 
-      for(int j = 1; j < 8; j++)
+      for(j = 1; j < 8; ++j)
       {   
         if(j % 2 != 0)
       	  continue;
@@ -135,7 +136,7 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
       }
       break;
     case 5:			// 101: sum all except 1st row
-      for(int j = 1; j < 8; j++)
+      for(j = 1; j < 8; ++j)
       {   
         if(j == 2 || j == 3 || j == 6 || j == 7)
 	  continue;
@@ -146,7 +147,7 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
       sum += sign[4] * (*out[4]);  
       break;
     case 3:			// 011: sum all except top slice
-      for(int j = 1; j < 4; j++)
+      for(j = 1; j < 4; ++j)
       {   
         sum += sign[j] * (*out[j]);  
       }
@@ -211,8 +212,8 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   //other half of the algorithm starts here
 
   t3 = clock();
-
-  for(int i = sizeSlice + sizeRow + 1; i < sizeTotal; i++)
+ 
+  for(i = sizeSlice + sizeRow + 1; i < sizeTotal; ++i)
   {
     position = 4;
 
@@ -234,20 +235,20 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
     switch(position)
     {
     case 7:			// 111 : sum all
-      for(int j = 1; j < 8; j++)
+      for(j = 1; j < 8; ++j)
       {   
         sum += sign[j] * (*out[j]);  
       }
       break;
     case 5:			// 101: sum all except 1st row
-      for(int j = 1; j < 6; j++)
+      for(j = 1; j < 6; ++j)
       {   
         if(j == 1 || j == 4 || j == 5)
-	  sum += sign[j] * (*out[j]);  
+	  sum += sign[j] * (*out[j]);        
       }
       break;
     case 6:			// 110: sum all except 1st column 
-      for(int j = 1; j < 7; j++)
+      for(j = 1; j < 7; ++j)
       {   
         if(j % 2 == 0)
 	  sum += sign[j] * (*out[j]);  
@@ -260,11 +261,11 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
     
     *out[0] = sum;		// set sum to current output voxel
    
-    for(int j = 0; j < 8; j++)
+    for(j = 0; j < 8; ++j)
     {
-      out[j]++;
+      ++out[j];
     }
-    in++;
+    ++in;
   } // end main algorithm
 
   //show timing 

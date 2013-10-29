@@ -15,6 +15,7 @@ include(${ITK_USE_FILE})
 set(CMAKE_BUILD_TYPE Release)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
+#set(CMAKE_CXX_FLAGS "-O2")
 add_executable(VolSum TestFilter.cxx SummationImageFilter.h SummationImageFilter.hxx)
 
 target_link_libraries(VolSum ${ITK_LIBRARIES})
