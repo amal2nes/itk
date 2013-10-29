@@ -12,6 +12,7 @@ void sumX(int dims[], TInputPixel * inRaw, TOutputPixel * outRaw)
 { 
   for(int index = 0; index < dims[1]*dims[2]; index++)
   {
+    // sums up for every element in every row
     std::partial_sum(inRaw + index * dims[0], inRaw + index * dims[0] + dims[0], outRaw + index * dims[0]);
   }
 }
@@ -23,6 +24,7 @@ void sumY(int dims[], TOutputPixel * outRaw)
 
   for(int z = 0; z < dims[2]; z++)
   {
+    // skip every 1st column
     index += dims[0];
     for(int y = 1; y < dims[1]; y++) 
     {
@@ -40,8 +42,9 @@ void sumZ(int dims[], TOutputPixel * outRaw)
 {
   TOutputPixel * prev = outRaw;
   
+  //offset current ptr to 2nd slice
   outRaw += dims[0]*dims[1];
-
+  
   for(int i = 0; i < dims[0]*dims[1]*dims[2] - dims[0]*dims[1]; i++)
   {
     outRaw[i] += prev[i];
