@@ -24,7 +24,7 @@ void sumY(int dims[], TOutputPixel * outRaw)
 
   for(int z = 0; z < dims[2]; z++)
   {
-    // skip every 1st column
+    // skip every 1st row
     index += dims[0];
     for(int y = 1; y < dims[1]; y++) 
     {
