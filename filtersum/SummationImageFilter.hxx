@@ -43,11 +43,12 @@ void sumZ(int dims[], TOutputPixel * outRaw)
   TOutputPixel * prev = outRaw;
   
   //offset current ptr to 2nd slice
-  outRaw += dims[0]*dims[1];
+  TOutputPixel * outRawOffset = outRaw;
+  outRawOffset += dims[0]*dims[1];
   
   for(int i = 0; i < dims[0]*dims[1]*dims[2] - dims[0]*dims[1]; i++)
   {
-    outRaw[i] += prev[i];
+    outRawOffset[i] += prev[i];
   }
 }
 
@@ -102,6 +103,9 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   sumZ(dims, outRaw);
   
   t2 = clock();
+
+  // std::cout<<"test sum at (10,10,10): "<<outRaw[9*dims[0]*dims[1] + 9*dims[0] + 9]<<std::endl;
+  // std::cout<<"test sum at (10,20,30): "<<outRaw[29*dims[0]*dims[1] + 19*dims[0] + 9]<<std::endl;
 
   diff = ((float)t2-(float)t1);
   std::cout<<"CPU Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
