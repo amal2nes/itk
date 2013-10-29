@@ -3,25 +3,13 @@
 
 #include "SummationImageFilter.h"
 
-#include "itkNeighborhoodIterator.h"
-#include "itkImageRegionIterator.h"
-#include "itkConstantBoundaryCondition.h"
-#include "itkRescaleIntensityImageFilter.h"
-#include <itkImageLinearConstIteratorWithIndex.h>
-#include <itkImageLinearIteratorWithIndex.h>
-
 #include <iostream>
 #include <time.h>
 #include <numeric>
 
-int getIndex(int x, int y, int z, int dims[])
-{
-  return z*(dims[0]*dims[1]) + y*dims[0] + x;
-}
-
 template<class TInputPixel, class TOutputPixel>
 void sumX(int dims[], TInputPixel * inRaw, TOutputPixel * outRaw)
-{
+{ 
   for(int index = 0; index < dims[1]*dims[2]; index++)
   {
     std::partial_sum(inRaw + index * dims[0], inRaw + index * dims[0] + dims[0], outRaw + index * dims[0]);
@@ -31,14 +19,18 @@ void sumX(int dims[], TInputPixel * inRaw, TOutputPixel * outRaw)
 template<class TOutputPixel>
 void sumY(int dims[], TOutputPixel * outRaw)
 {
+  int index = 0;
+
   for(int z = 0; z < dims[2]; z++)
   {
-    for(int x = 0; x < dims[0]; x++)
+    index += dims[0];
+    for(int y = 1; y < dims[1]; y++) 
     {
-      for(int y = 1; y < dims[1]; y++)
+      for(int x = 0; x < dims[0]; x++)
       {
-        outRaw[z*(dims[0]*dims[1]) + y*dims[0] + x] += outRaw[z*(dims[0]*dims[1]) + (y-1)*dims[0] + x];  
-      }
+        outRaw[index] += outRaw[index - dims[0]];  
+	++index;
+      }      
     }
   }
 } 
@@ -46,15 +38,13 @@ void sumY(int dims[], TOutputPixel * outRaw)
 template<class TOutputPixel>
 void sumZ(int dims[], TOutputPixel * outRaw)
 {
-  for(int x = 0; x < dims[0]; x++)
+  TOutputPixel * prev = outRaw;
+  
+  outRaw += dims[0]*dims[1];
+
+  for(int i = 0; i < dims[0]*dims[1]*dims[2] - dims[0]*dims[1]; i++)
   {
-    for(int y = 0; y < dims[1]; y++)
-    {
-      for(int z = 1; z < dims[2]; z++)
-      {   
-        outRaw[z*(dims[0]*dims[1]) + y*dims[0] + x] += outRaw[(z-1)*(dims[0]*dims[1]) + y*dims[0] + x];  
-      }
-    }
+    outRaw[i] += prev[i];
   }
 }
 
@@ -77,10 +67,12 @@ SummationImageFilter< TInputImage, TOutputImage>
 template< class TInputImage, class TOutputImage>
 void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
 {
+  itkDebugMacro(<< "SummationImageFilter::GenerateData() called");
+
   clock_t t1,t2;
   float diff;
 
-  itkDebugMacro(<< "SummationImageFilter::GenerateData() called");
+  t1=clock();
 
   InputImageConstPointer inputPtr  = this->GetInput();
   OutputImagePointer     outputPtr = this->GetOutput();
@@ -88,47 +80,28 @@ void SummationImageFilter< TInputImage, TOutputImage >::GenerateData()
   typename TInputImage::SizeType inputSize = inputPtr->GetRequestedRegion().GetSize();
 
   int dims[3];
-  dims[0] = inputSize[0];
-  dims[1] = inputSize[1];
-  dims[2] = inputSize[2];  
+
+  for(int i = 0; i < 3; i++)
+  {
+    dims[i] = inputSize[i];  
+  }
 
   outputPtr->SetRegions(inputPtr->GetRequestedRegion());
   outputPtr->Allocate();
 
-  typedef typename TInputImage::PixelType TInputPixel;
-  typedef typename TOutputImage::PixelType TOutputPixel;
-
   const TInputPixel* inRaw = inputPtr->GetBufferPointer(); 
   TOutputPixel* outRaw = outputPtr->GetBufferPointer(); 
 
-  t1=clock();
-
-  //sum up x
   sumX(dims, inRaw, outRaw);
 
-  t2=clock();
-
-  diff = ((float)t2-(float)t1);
-  std::cout<<"Time 1: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
-
-  t1=clock();
-
-  //sum up y
   sumY(dims, outRaw);
 
-  t2=clock();
-
-  diff = ((float)t2-(float)t1);
-  std::cout<<"Time 2: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
-
-  t1=clock();
-
   sumZ(dims, outRaw);
-
-  t2=clock();
+  
+  t2 = clock();
 
   diff = ((float)t2-(float)t1);
-  std::cout<<"Time 3: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
+  std::cout<<"CPU Time: "<<diff/CLOCKS_PER_SEC<<"s"<<std::endl;
 }
 
 }

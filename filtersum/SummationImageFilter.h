@@ -3,17 +3,14 @@
 
 #include "itkImageToImageFilter.h"
 
-#include "itkNeighborhoodIterator.h"
-#include "itkImageRegionIterator.h"
-#include "itkConstantBoundaryCondition.h"
-
-inline int getIndex(int x, int y, int z, int dims[]);
-
-template <class TOutputPixel>
-inline void sum(int dims[], TOutputPixel * outRaw);
-
-template <class TInputPixel, class TOutputPixel>
+template<class TInputPixel, class TOutputPixel>
 void sumX(int dims[], TInputPixel * inRaw, TOutputPixel * outRaw);
+
+template<class TOutputPixel>
+void sumY(int dims[], TOutputPixel * outRaw);
+
+template<class TOutputPixel>
+void sumZ(int dims[], TOutputPixel * outRaw);
 
 namespace itk{
 
@@ -27,6 +24,9 @@ public:
   typedef SmartPointer<Self> Pointer;
   typedef SmartPointer<const Self> ConstPointer;
 
+  typedef typename TInputImage::PixelType TInputPixel;
+  typedef typename TOutputImage::PixelType TOutputPixel;
+
 /** Method for creation through the object factory. */
   itkNewMacro(Self);
   
@@ -39,28 +39,18 @@ public:
   typedef typename OutputImageType::Pointer     OutputImagePointer;
   typedef typename InputImageType::Pointer      InputImagePointer;
   typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef itk::Image< double, 3 > ImageTypeDouble;
-  typedef typename ImageTypeDouble::Pointer ImageTypeDoublePointer;
-
-  typedef itk::ConstantBoundaryCondition<ImageTypeDouble> BoundaryConditionType;
-
-  typedef itk::NeighborhoodIterator<ImageTypeDouble,BoundaryConditionType> NeighborhoodIteratorType;
-  typedef itk::ImageRegionIterator< ImageTypeDouble> IteratorType;
-  typedef typename NeighborhoodIteratorType::RadiusType RadiusType;
-  typedef typename NeighborhoodIteratorType::OffsetType OffsetType;
-
+ 
 protected:
   SummationImageFilter();
   virtual ~SummationImageFilter() {}
   void PrintSelf(std::ostream & os, Indent indent) const;
 
-  /** Method for evaluating the implicit function over the image. */
+  // implemented method for integral image
   void GenerateData();  
 
 private:
   SummationImageFilter(const Self &); //purposely not implemented
-  void operator=(const Self &);          //purposely not implemented
-  
+  void operator=(const Self &);          //purposely not implemented 
 };
 
 }
