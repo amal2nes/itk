@@ -17,7 +17,7 @@ int getIndexFromXYZ(const int* dim, const int* boxVertice);
 // numTargetCoord = number of coordinate sets
 // randomBoxes = array of random boxes (ox,oy,oz,lx,ly,lz)'s
 // numRandomBoxes = number of random boxes
-// data = pointer to image data
+// data = pointer to image data having template dataType
 // dim = size of image (SizeX,SizeY,SizeZ)
 // isMRI = true if MRI, false if CT
 template< class dataType>
