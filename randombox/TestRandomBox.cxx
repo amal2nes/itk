@@ -1,7 +1,7 @@
 /**
  *
  * Test bench for the created filter(s)
- * 
+ * Logs time for computing avg integral of boxes with random input data
  *=========================================================================*/
 
 #include "RandomBox.h"
@@ -14,12 +14,15 @@
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 
+//number of random boxes to test with
 #define BOXNUMMAX 10000
 
+//number of target pixels to test with
 #define TARGETCOORDNUMMAX 10000
 
 //#define DEBUG
 
+//number of tests
 #define TESTNUM 20
 
 int main(int argc, char **argv)
@@ -43,6 +46,7 @@ int main(int argc, char **argv)
   //get size of image
   typename ImageType::SizeType inputSize = reader->GetOutput()->GetLargestPossibleRegion().GetSize();
 
+  //dimension of input image
   int dim[3];
   
   for(int y = 0; y < 3; y++)
@@ -79,6 +83,7 @@ int main(int argc, char **argv)
     numTargCoord = rand()%(TARGETCOORDNUMMAX) + 1;
     targetCoord = new int[numTargCoord*3];
 
+    //generate random target pixel coordinates
     for(int i = 0; i < numTargCoord; i++)
     {
       targetCoord[i*3] = rand()%(dim[0]);
@@ -110,6 +115,7 @@ int main(int argc, char **argv)
       // start timing
       t1=clock();
      
+      //compute integral of boxes
       double * integral = getRandomBoxIntegral<const ImageType::PixelType>(targetCoord, numTargCoord, out, numBox, reader->GetOutput()->GetBufferPointer(), dim, isMRI[i]);
   
       //end timing
