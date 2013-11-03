@@ -9,7 +9,8 @@ int getIndexFromXYZ(const int* dim, const int* boxVertice);
 
 //calculates average integral based on target coordinates and random
 //boxes
-// generate an array of row-based m x n matrix,
+// generate an array of integral corresponding to target coordinates
+// and random boxes, returns continuous 1D array of rows of m x n input data
 // for CT: m = number of target coordinates,n = number of random boxes
 // for MRI: m = number of target coordinates,n = (number of random boxes)/2
 // targetCoord = array of input coordinates (x,y,z)'s
@@ -20,7 +21,7 @@ int getIndexFromXYZ(const int* dim, const int* boxVertice);
 // dim = size of image (SizeX,SizeY,SizeZ)
 // isMRI = true if MRI, false if CT
 template< class dataType>
-double* getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType data, const int* dim, bool isMRI);
+double* getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType * data, const int* dim, bool isMRI);
 
 #include "RandomBox.hxx"
 

@@ -20,7 +20,7 @@
 
 //#define DEBUG
 
-#define TESTNUM 10000
+#define TESTNUM 20
 
 int main(int argc, char **argv)
 {
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
       // start timing
       t1=clock();
      
-      double * integral = getRandomBoxIntegral<const ImageType::PixelType *>(targetCoord, numTargCoord, out, numBox, reader->GetOutput()->GetBufferPointer(), dim, isMRI[i]);
+      double * integral = getRandomBoxIntegral<const ImageType::PixelType>(targetCoord, numTargCoord, out, numBox, reader->GetOutput()->GetBufferPointer(), dim, isMRI[i]);
   
       //end timing
       t2=clock();
