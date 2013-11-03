@@ -1,14 +1,24 @@
+//this module performs integral 3D sum using ITK class implementation
+//to perform integral 3D, use Update() from an instance of this class or invoke it from another ITK
+//element connected to this instance down the pipeline
+
 #ifndef __SummationImageFilter_h
 #define __SummationImageFilter_h
 
 #include "itkImageToImageFilter.h"
 
+//sums in x direction
+//call this first before sumY and sumZ to save output to another buffer
 template<class TInputPixel, class TOutputPixel>
 void sumX(int dims[], TInputPixel * inRaw, TOutputPixel * outRaw);
 
+//sums in y direction
+//this sums in-place
 template<class TOutputPixel>
 void sumY(int dims[], TOutputPixel * outRaw);
 
+//sums in z direction
+//this sums in-place
 template<class TOutputPixel>
 void sumZ(int dims[], TOutputPixel * outRaw);
 
