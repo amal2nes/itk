@@ -70,7 +70,7 @@ private:
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "FeatureExtractSum.hxx"
+#include "FeatureExtractSum.cpp"
 #endif
 
 #endif

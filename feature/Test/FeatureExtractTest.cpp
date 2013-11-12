@@ -25,6 +25,7 @@
 
 //image integral filter
 #include "FeatureExtractSum.h"
+#include "FeatureExtractRandomBox.h"
 
 using namespace std;
 using namespace FeatureExtractRandomBox;

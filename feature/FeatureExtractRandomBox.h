@@ -27,6 +27,6 @@ double* getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, c
 
 }
 
-#include "FeatureExtractRandomBox.hxx"
+#include "FeatureExtractRandomBox.cpp"
 
 #endif
