@@ -10,14 +10,15 @@
 
 namespace FeatureExtractRandomBox{
 
-// Generate box data from min and max box dimensions (lx,ly,lz), offset (ox,oy,oz), number of boxes 
+// Generate box data from min and max box dimensions (lx,ly,lz),
+// offset distance limit (ox,oy,oz), number of boxes 
 int * getRandomBoxes(int minL[], int maxL[], int distance[], int numBox)
 {
 
   int* outBoxes = new int[numBox*6]; // create array of boxes with data ox,oy,oz,lx,ly,lz
   
   //seed random generator
-//  srand(time(NULL));
+  srand(time(NULL));
 
   for(int i = 0; i < numBox; i++) 
   {
@@ -51,9 +52,23 @@ int * getRandomBoxes(int minL[], int maxL[], int distance[], int numBox)
 // data = pointer to image data having template dataType
 // dim = size of image (SizeX,SizeY,SizeZ)
 // isMRI = true if MRI, false if CT
+// output = output array
+// return true if successful
 template< class dataType>
-double* getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType * data, const int* dim, bool isMRI)
+bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType * data, const int* dim, bool isMRI, double *& output)
 {
+
+  //check targetCoord with image size
+  // for each input coordinate
+  for(int i = 0; i < numTargetCoord; i++) 
+  {
+    for(int j = 0; j < 3; j++)
+    {
+      if(targetCoord[i*3 + j] < 0 || targetCoord[i*3 + j] >= dim[j])
+	return false;
+    }
+  }
+  
   //temporary containers
   int coord[3];
   int randomBoxData[6];
@@ -61,7 +76,7 @@ double* getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, c
   // number of random boxes for MRI halves
   int finalNumRandomBoxes = (isMRI? numRandomBoxes/2: numRandomBoxes);
 
-  double* output = new double[numTargetCoord * finalNumRandomBoxes]; // output initialization
+  output = new double[numTargetCoord * finalNumRandomBoxes]; // output initialization
 
   double* avgIntegral = new double[numRandomBoxes]; // intermediate data
   
@@ -199,7 +214,7 @@ double* getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, c
     }
   }// end of input coordinate loop
   
-  return output;
+  return true;
 }
 
 // convert input x,y,z coordinates (0 indexed) to a linear index (0 indexed)

@@ -22,8 +22,10 @@ int getIndexFromXYZ(const int* dim, const int* boxVertice);
 // data = pointer to image data having template dataType
 // dim = size of image (SizeX,SizeY,SizeZ)
 // isMRI = true if MRI, false if CT
+// output = output array
+// return true if successful
 template< class dataType>
-double* getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType * data, const int* dim, bool isMRI);
+bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType * data, const int* dim, bool isMRI, double *& output);
 
 }
 
