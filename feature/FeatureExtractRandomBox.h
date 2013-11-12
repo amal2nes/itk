@@ -3,7 +3,7 @@
 
 namespace FeatureExtractRandomBox{
 
-// gets 1D array of random boxes with output tuples: x,y,z,lx,ly,lz
+// gets 1D array of random boxes with output tuples: ox,oy,oz,lx,ly,lz
 int* getRandomBoxes(int* minL, int* maxL, int* distance, int numBox);
 
 // convert input x,y,z coordinates (0 indexed) to a linear index (0 indexed)
