@@ -15,8 +15,6 @@ include(${ITK_USE_FILE})
 set(CMAKE_BUILD_TYPE Release)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
-#add_executable(VolSum FeatureExtractTest.cpp FeatureExtractSum.h FeatureExtractSum.cpp FeatureExtractRandomBox.h FeatureExtractRandomBox.cpp)
-
 # Directories to search for #include (add more if needed) 
 # (ITK is already included through the use of INCLUDE(${ITK_USE_FILE})
 INCLUDE_DIRECTORIES(
