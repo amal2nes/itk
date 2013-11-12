@@ -106,13 +106,33 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
       //check if position is out of bounds
       for(int x = 0; x < 3; x++)
       {
+        //absolute position of random box
         int pos = coord[x] + randomBoxData[x];
-	int posPlusLength = pos + randomBoxData[x+3];
-        if(pos >= dim[x] || pos < 0 || posPlusLength >= dim[x])
+
+	// if box is out of bounds, make it as nearest as possible
+        if(pos >= dim[x])
 	{
-  	  outOfBounds[k] = true;
-	  break;
-	} 
+  	  randomBoxData[x] += dim[x] - pos;
+	  pos = dim[x] - 1;
+	}
+	else if(pos < 0)
+	{
+  	  randomBoxData[x] += 0 - pos;
+	  pos = 0;
+	}
+       
+	int posPlusLength = pos + randomBoxData[x+3];
+
+	if(posPlusLength >= dim[x])
+	{
+  	  randomBoxData[x+3] += dim[x] - posPlusLength;
+	}
+
+	// if(pos >= dim[x] || pos < 0 || posPlusLength >= dim[x])
+	// {
+  	//   outOfBounds[k] = true;
+	//   break;
+	// }	
       }
       
       // start of avg integral calculation

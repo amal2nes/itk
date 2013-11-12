@@ -4,15 +4,6 @@
  * 
  *=========================================================================*/
 
-//number of random boxes to test with
-#define BOXNUMMAX 10000
-
-//number of target pixels to test with
-#define TARGETCOORDNUMMAX 10000
-
-//number of tests
-#define TESTNUM 20
-
 #include "itkImage.h"
 #include <iostream>
 #include "itkImageFileReader.h"
@@ -24,6 +15,7 @@
 #include <time.h>
 #include <fstream>
 #include <string>
+#include <limits>
 
 //image integral filter
 #include "FeatureExtractSum.h"
@@ -87,18 +79,18 @@ int main(int argc, char **argv)
   int numIntegralPoints;
   infile >> numIntegralPoints;
   int pos[3];
-  float expected;
+  double expected;
   int error = 0;  
 
   for(int i = 0; i < numIntegralPoints; i++)
   {
     infile >> pos[0] >> pos[1] >> pos[2] >> expected;
     //get integral value
-    float integral = outRaw[pos[2]*dim[0]*dim[1] + pos[1]*dim[0] + pos[0]];
-    
+    double integral = outRaw[pos[2]*dim[0]*dim[1] + pos[1]*dim[0] + pos[0]];
+
     if(expected != integral)
     {
-      cout<<"Integral at ("<< pos[0] <<","<<pos[1]<<","<<pos[2]<<"): "<<integral<<", expected: "<<expected<<endl;
+      cout<<i<<": integral at ("<< pos[0] <<","<<pos[1]<<","<<pos[2]<<"): "<<integral<<", expected: "<<expected<<endl;
       error++;
     }
   }
@@ -138,12 +130,12 @@ int main(int argc, char **argv)
 	length = out[j*6 + 3 + k];
 	if(offset < -distance[k] || offset > distance[k])
 	{
-	  cout<<"random box offset out of bound, returned:"<<offset<<",expected range:["<<-distance[k]<<","<<distance[k]<<"]"<<endl;
+  	  cout<<i<<": random box offset out of bound, returned:"<<offset<<",expected range:["<<-distance[k]<<","<<distance[k]<<"]"<<endl;
 	  error++;
 	}
 	if(length < sizeMin[k] || length > sizeMax[k])
 	{
-  	  cout<<"random box length out of bound, returned:"<<length<<",expected range:["<<sizeMin[k]<<","<<sizeMax[k]<<"]"<<endl;	
+  	  cout<<i<<": random box length out of bound, returned:"<<length<<",expected range:["<<sizeMin[k]<<","<<sizeMax[k]<<"]"<<endl;	
 	  error++;
 	}
       }      
@@ -202,7 +194,7 @@ int main(int argc, char **argv)
   int offsetBox[3];
   int lengthBox[3];
   int posPixel[3];
-  int expectedVal;
+  double expectedVal;
 
   infile >> numBoxIntegral;
   for(int i = 0; i < numBoxIntegral; i++)
@@ -220,10 +212,10 @@ int main(int argc, char **argv)
     int * posPixelPtr = &posPixel[0];
 
     bool returnVal = getRandomBoxIntegral<TOutputPixel>(posPixelPtr, 1, randomBox, 1, outRaw, dim, false, boxIntegralOut);  
-    
-    if(boxIntegralOut[0] != expectedVal)
+
+    if(abs(boxIntegralOut[0] - expectedVal) >=  0.0001*expectedVal)
     {
-      cout<<"box integral returned: "<<boxIntegralOut[0]<<", expected: "<<expectedVal<<endl;
+      cout<<i<<": box integral returned: "<<boxIntegralOut[0]<<", expected: "<<expectedVal<<endl;
       error++;
     }
   }
@@ -233,7 +225,45 @@ int main(int argc, char **argv)
   else
     cout<<"box integral test .................... failed, "<<error<<" errors"<<endl;
 
-  cout << "Finished Feature Extraction Test" << endl;
+  //compare MRI output to equal to expected difference of 2 non-MRI outputs
+  cout<<"MRI integral test .................... started"<<endl;
+  error = 0;
+  for(int i = 0; i < 3; i++)
+  {
+    sizeMin[i] = dim[i]/8;
+    sizeMax[i] = dim[i]/4;
+    distance[i] = dim[i]/4;
+    posPixel[i] = dim[i]/2;
+  }
+  //testing with 4 random boxes
+  numBox = 4;
+
+  int * posPixelPtr = &posPixel[0];
+
+  int * randomBoxes = getRandomBoxes(sizeMin, sizeMax, distance, numBox);
+ 
+  double * outNoMri;
+  double * outMri;
+   
+  getRandomBoxIntegral<TOutputPixel>(posPixelPtr, 1, randomBoxes, numBox, outRaw, dim, false, outNoMri);  
+
+  getRandomBoxIntegral<TOutputPixel>(posPixelPtr, 1, randomBoxes, numBox, outRaw, dim, true, outMri);
+
+  for(int i = 0; i < numBox/2; i++)
+  {			       
+    double diff = outNoMri[i] - outNoMri[numBox/2 + i];
+    if(outMri[i] != diff)
+    {
+      cout<<i<<": MRI integral:"<<outMri[i]<<", expected:"<<diff<<endl;
+      error++;
+    }
+  }
+  if(error == 0)
+    cout<<"MRI integral test .................... passed"<<endl;
+  else
+    cout<<"MRI integral test .................... failed, "<<error<<" errors"<<endl;
+
+  cout << "Finished Test" << endl;
 
   return 0;
 }
