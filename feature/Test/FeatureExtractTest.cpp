@@ -225,7 +225,7 @@ int main(int argc, char **argv)
   else
     cout<<"box integral test .................... failed, "<<error<<" errors"<<endl;
 
-  //compare MRI output to equal to expected difference of 2 non-MRI outputs
+  //compare if MRI output is equal to expected difference of 2 non-MRI outputs
   cout<<"MRI integral test .................... started"<<endl;
   error = 0;
   for(int i = 0; i < 3; i++)
