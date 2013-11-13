@@ -17,15 +17,15 @@
 using namespace FeatureExtractRandomBox;
 
 //number of random boxes to test with
-#define BOXNUMMAX 1000
+#define BOXNUMMAX 10000
 
 //number of target pixels to test with
-#define TARGETCOORDNUMMAX 1000
+#define TARGETCOORDNUMMAX 10000
 
 //#define DEBUG
 
 //number of tests
-#define TESTNUM 5
+#define TESTNUM 2000
 
 int main(int argc, char **argv)
 {

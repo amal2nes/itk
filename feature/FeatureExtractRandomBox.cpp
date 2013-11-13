@@ -18,7 +18,7 @@ int * getRandomBoxes(int minL[], int maxL[], int distance[], int numBox)
   int* outBoxes = new int[numBox*6]; // create array of boxes with data ox,oy,oz,lx,ly,lz
   
   //seed random generator
-  srand(time(NULL));
+  //srand(time(NULL));
 
   for(int i = 0; i < numBox; i++) 
   {
@@ -80,7 +80,7 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
 
   double* avgIntegral = new double[numRandomBoxes]; // intermediate data
   
-  bool* outOfBounds = new bool[numRandomBoxes]; // intermediate data
+  // bool* outOfBounds = new bool[numRandomBoxes]; // intermediate data
 
   // for each input coordinate
   for(int i = 0; i < numTargetCoord; i++) 
@@ -101,7 +101,7 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
       }
      
       // reset current bounds
-      outOfBounds[k] = false;      
+      // outOfBounds[k] = false;      
       
       //check if position is out of bounds
       for(int x = 0; x < 3; x++)
@@ -136,8 +136,9 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
       }
       
       // start of avg integral calculation
-      if(outOfBounds[k] == false)
-      {  
+      // if(outOfBounds[k] == false)
+      // {
+      
         //stores linear index of 8 vertices of the box
 	int indexes[8];
 	
@@ -198,7 +199,7 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
 	//calculate current avg integral
 	avgIntegral[k] = (-integrals[0] + integrals[1] + integrals[2] - integrals[3] + integrals[4] - integrals[5] - integrals[6] + integrals[7]) / (randomBoxData[3]*randomBoxData[4]*randomBoxData[5]);
 
-      }// end of box integral 
+      // }// end of box integral 
     }//end of random box loop
 
     //make half of results to be subtracted for MRI
@@ -209,27 +210,27 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
       //perform subtraction on 2 boxes for MRI
       if(isMRI)
       {
-        if(!outOfBounds[s] && !outOfBounds[s + finalNumRandomBoxes])
-	{
+        // if(!outOfBounds[s] && !outOfBounds[s + finalNumRandomBoxes])
+	// {
 	  output[i*finalNumRandomBoxes + s] = avgIntegral[s] - subtract[s];
-	}
-	else
-	{
-	  // out of bounds
-	  output[i*finalNumRandomBoxes + s] = 1e20;
-	}
+	// }
+	// else
+	// {
+	//   // out of bounds
+	//   output[i*finalNumRandomBoxes + s] = 1e20;
+	// }
       }
       else
       {
-        if(!outOfBounds[s])
-	{ 
+        // if(!outOfBounds[s])
+	// {
 	  output[i*finalNumRandomBoxes + s] = avgIntegral[s];
-	}
-	else
-	{
-          // out of bounds
-	  output[i*finalNumRandomBoxes + s] = 1e20;
-	}
+	// }
+	// else
+	// {
+        //   // out of bounds
+	//   output[i*finalNumRandomBoxes + s] = 1e20;
+	// }
       }
     }
   }// end of input coordinate loop
