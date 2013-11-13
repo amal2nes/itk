@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
   if(argc < 3)
   {
-    cout<<"need test case file path"<<endl;
+    cout<<"need test case file path, image path"<<endl;
     return EXIT_FAILURE;
   }
 
@@ -43,8 +43,9 @@ int main(int argc, char **argv)
   ReaderType::Pointer reader = ReaderType::New();
   FilterType::Pointer filter = FilterType::New();
   
-  ifstream infile(argv[2]);
-  reader->SetFileName(argv[1]);
+  ifstream infile(argv[1]);
+  
+  reader->SetFileName(argv[2]);
   
   filter->SetInput(reader->GetOutput());
   

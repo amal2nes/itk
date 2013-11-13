@@ -4,7 +4,7 @@
  * Logs time for computing avg integral of boxes with random input data
  *=========================================================================*/
 
-#include "RandomBox.h"
+#include "FeatureExtractRandomBox.h"
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
@@ -13,6 +13,8 @@
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"
+
+using namespace FeatureExtractRandomBox;
 
 //number of random boxes to test with
 #define BOXNUMMAX 10000
@@ -116,7 +118,9 @@ int main(int argc, char **argv)
       t1=clock();
      
       //compute integral of boxes
-      double * integral = getRandomBoxIntegral<const ImageType::PixelType>(targetCoord, numTargCoord, out, numBox, reader->GetOutput()->GetBufferPointer(), dim, isMRI[i]);
+      double * integral;
+      
+      getRandomBoxIntegral<const ImageType::PixelType>(targetCoord, numTargCoord, out, numBox, reader->GetOutput()->GetBufferPointer(), dim, isMRI[i], integral);
   
       //end timing
       t2=clock();
