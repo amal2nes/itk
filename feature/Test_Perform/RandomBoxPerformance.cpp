@@ -1,7 +1,9 @@
 /**
  *
- * Test bench for the created filter(s)
- * Logs time for computing avg integral of boxes with random input data
+ * Test bench for timing performance of box integral calculation.
+ * Uses Randomized parameters for random box parameters and pixel
+ * coordinates.
+ * Logs time and test parameters to external file.
  *=========================================================================*/
 
 #include "FeatureExtractRandomBox.h"
@@ -16,26 +18,26 @@
 
 using namespace FeatureExtractRandomBox;
 
-//number of random boxes to test with
-#define BOXNUMMAX 10000
-
-//number of target pixels to test with
-#define TARGETCOORDNUMMAX 10000
-
-//#define DEBUG
-
-//number of tests
-#define TESTNUM 2000
+//#define DEBUG	
 
 int main(int argc, char **argv)
 {
   srand(time(NULL));
      
-  if(argc < 3)
+  if(argc < 6)
   {
-    std::cout<<"need input file path and output folder path"<<std::endl;
+    std::cout<<"need: <input file path>, <output folder path>, <number of tests>"<<std::endl;
     return -1;
   }
+  
+  //total number of tests
+  int totalTests = atoi(argv[3]);
+
+  //max number of random boxes per test
+  int boxNumMax = atoi(argv[4]);
+
+  //max number of target pixels per test
+  int targetCoordNumMax = atoi(argv[5]);
 
   typedef itk::Image< char, 3 > ImageType;
   typedef itk::ImageFileReader<ImageType> ReaderType;
@@ -48,7 +50,7 @@ int main(int argc, char **argv)
   //get size of image
   typename ImageType::SizeType inputSize = reader->GetOutput()->GetLargestPossibleRegion().GetSize();
 
-  //dimension of input image
+  //get dimension of input image
   int dim[3];
   
   for(int y = 0; y < 3; y++)
@@ -65,7 +67,7 @@ int main(int argc, char **argv)
 
   fileTiming<<"dim x, dim y, dim z, size min x, size min y, size min z, size max x, size max y, size max z, dist x, dist y, dist z, num target coord, num box, isMRI?, time(ms)"<<std::endl;
 
-  for(int testNum = 0; testNum <  TESTNUM; testNum++)
+  for(int testNum = 0; testNum <  totalTests; testNum++)
   {
     int boxSizeMin[3];
     int boxSizeMax[3];
@@ -74,6 +76,7 @@ int main(int argc, char **argv)
     int numBox;
     int* targetCoord;
 
+    //generate parameters for random boxes
     for(int i = 0; i<3; i++)
     {
       boxSizeMin[i] = rand()%(dim[i]-1) + 1;
@@ -81,8 +84,8 @@ int main(int argc, char **argv)
       distance[i] = rand()%(dim[i]) + 1;      
     }
 
-    numBox = rand()%(BOXNUMMAX) + 1;
-    numTargCoord = rand()%(TARGETCOORDNUMMAX) + 1;
+    numBox = rand()%(boxNumMax) + 1;
+    numTargCoord = rand()%(targetCoordNumMax) + 1;
     targetCoord = new int[numTargCoord*3];
 
     //generate random target pixel coordinates
@@ -125,6 +128,8 @@ int main(int argc, char **argv)
       //end timing
       t2=clock();
       diff = ((double)t2-(double)t1);
+
+      //write test parameters and time to file
 
       for(int j = 0; j < 3; j++)
       {
@@ -182,7 +187,7 @@ int main(int argc, char **argv)
     delete [] out;
     delete [] targetCoord;
 
-    std::cout<<"test# "<<testNum+1<<"/"<<TESTNUM<<std::endl;
+    std::cout<<"test# "<<testNum+1<<"/"<<totalTests<<std::endl;
       
   }// of testNum loop 
  
