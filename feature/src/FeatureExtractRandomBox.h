@@ -32,6 +32,12 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
 //fixed point input
 bool getTrainingData(const int* targetCoord, const int numTargetCoord, int* trainInput, int* & trainOutput);
 
+//convert from actual length to pixel length using image spacing factor
+int* convertToPixelLength(const double * actual, const double * factor);
+
+//convert from pixel length to actual length using image spacing factor
+double* convertToActualLength(const int * pixelLength, const double * factor);
+
 }
 
 #include "FeatureExtractRandomBox.cpp"

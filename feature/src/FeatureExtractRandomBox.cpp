@@ -6,7 +6,8 @@
 
 #include <iostream>
 
-#include <time.h>       
+#include <time.h>    
+#include <math.h>   
 
 namespace FeatureExtractRandomBox{
 
@@ -37,6 +38,32 @@ int * getRandomBoxes(int minL[], int maxL[], int distance[], int numBox)
   }
   
   return outBoxes;
+}
+
+//convert from actual length to pixel length using image spacing factor
+int* convertToPixelLength(const double * actual, const double * factor)
+{
+  int * pixelLength = new int[3];
+
+  for(int i = 0; i < 3; i++)
+  {
+    pixelLength[i] = ceil(actual[i]/factor[i]);
+  }
+
+  return pixelLength;
+}
+
+//convert from pixel length to actual length using image spacing factor
+double* convertToActualLength(const int * pixelLength, const double * factor)
+{
+  double * actualLength = new double[3];
+
+  for(int i = 0; i < 3; i++)
+  {
+    actualLength[i] = pixelLength[i] * factor[i];
+  }
+
+  return actualLength;
 }
 
 //calculates average integral based on target coordinates and random
