@@ -38,6 +38,12 @@ int* convertToPixelLength(const double * actual, const double * factor);
 //convert from pixel length to actual length using image spacing factor
 double* convertToActualLength(const int * pixelLength, const double * factor);
 
+//subtract origin offset from acutal input length
+double* subtractOrigin(const double * input, const double * origin);
+
+//add origin offset to actual input length
+double* addOrigin(const double * input, const double * origin);
+
 }
 
 #include "FeatureExtractRandomBox.cpp"

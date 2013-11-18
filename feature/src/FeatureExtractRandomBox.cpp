@@ -66,6 +66,32 @@ double* convertToActualLength(const int * pixelLength, const double * factor)
   return actualLength;
 }
 
+//subtract origin offset from input actual length
+double* subtractOrigin(const double * input, const double * origin)
+{
+  double * output = new double[3];
+
+  for(int i = 0; i < 3; i++)
+  {
+    output[i] = input[i] - origin[i];
+  }
+
+  return output;
+}
+
+//add origin offset to input actual length
+double* addOrigin(const double * input, const double * origin)
+{
+  double * output = new double[3];
+
+  for(int i = 0; i < 3; i++)
+  {
+    output[i] = input[i] + origin[i];
+  }
+
+  return output;
+}
+
 //calculates average integral based on target coordinates and random
 //boxes
 // generate an array of integral corresponding to target coordinates
