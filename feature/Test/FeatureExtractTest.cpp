@@ -87,8 +87,6 @@ int main(int argc, char **argv)
       if(testType == "ImageIntegral")
       { 
         //image integral test
-        cout<<"image integral test .................... started"<<endl;
-
 	int numIntegralPoints;
 	infile >> numIntegralPoints;
 	int pos[3];
@@ -109,19 +107,16 @@ int main(int argc, char **argv)
   
 	if(error == 0)
 	{
-	  cout<<"image integral test .................... passed"<<endl;
 	  return 0;
 	}
 	else
 	{
-	  cout<<"image integral test .................... failed: "<<error<<" errors"<<endl;
 	  return -1;
 	}
       }
       else if(testType == "RandomBox")
       {
         //test for random box offset and length
-        cout<<"random box generation test .................... started"<<endl;
 	int numRandomBoxCases;
 	int sizeMin[3];
 	int sizeMax[3];
@@ -161,19 +156,16 @@ int main(int argc, char **argv)
   
 	if(error == 0)
 	{
-	  cout<<"random box generation test .................... passed"<<endl;
 	  return 0;
 	}
 	else
 	{
-	  cout<<"random box generation test .................... failed: "<<error<<" errors"<<endl;
 	  return -1;
 	}
       }
       else if(testType == "Pixel")
       {
         //test if pixel is within range of image
-        cout<<"pixel within image range test .................... started"<<endl;
 	int numPixels;
 	int pixelPos[3];
 	error = 0;
@@ -208,19 +200,16 @@ int main(int argc, char **argv)
  
 	if(error == 0)
 	{
-	  cout<<"pixel within image range test .................... passed"<<endl;
 	  return 0;
 	}
 	else
 	{
-	  cout<<"pixel within image range test .................... failed"<<endl;
 	  return -1;
 	}
       }
       else if(testType == "BoxIntegral")
       {
         //test if box integral is correct
-        cout<<"box integral test .................... started"<<endl;
 	error = 0;
 	int numBoxIntegral;
 	int offsetBox[3];
@@ -254,12 +243,10 @@ int main(int argc, char **argv)
  
 	if(error == 0)
 	{
-	  cout<<"box integral test .................... passed"<<endl;
 	  return 0;
 	}
 	else
 	{
-	  cout<<"box integral test .................... failed, "<<error<<" errors"<<endl;
 	  return -1;
 	}
       }//end of typetype   
@@ -268,7 +255,6 @@ int main(int argc, char **argv)
     else if(testType == "MRI")
     {
         //compare if MRI output is equal to expected difference of 2 non-MRI outputs
-        cout<<"MRI integral test .................... started"<<endl;
 	error = 0;
 	int sizeMin[3];
 	int sizeMax[3];
@@ -309,12 +295,10 @@ int main(int argc, char **argv)
 	}
 	if(error == 0)
 	{
-	  cout<<"MRI integral test .................... passed"<<endl;
 	  return 0;
 	}
 	else
 	{
-	  cout<<"MRI integral test .................... failed, "<<error<<" errors"<<endl;
 	  return -1;
 	}
       }//end of MRI test
