@@ -21,4 +21,7 @@ ADD_TEST(FeatureExtractTest_BoxIntegral ${EXECUTABLE_OUTPUT_PATH}/FeatureExtract
 ADD_TEST(FeatureExtractTest_MRI ${EXECUTABLE_OUTPUT_PATH}/FeatureExtractTest ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testcase ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testImg.vtk MRI
   )
 
+ADD_TEST(FeatureExtractTest_Spacing ${EXECUTABLE_OUTPUT_PATH}/FeatureExtractTest ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testcase ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testImg.vtk Spacing
+  )
+
 #SET_TESTS_PROPERTIES( FeatureExtractTest PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR;WARNING" )

@@ -17,6 +17,7 @@
 #include <fstream>
 #include <string>
 #include <limits>
+#include <math.h>
 
 //image integral filter
 #include "FeatureExtractSum.h"
@@ -249,7 +250,56 @@ int main(int argc, char **argv)
 	{
 	  return -1;
 	}
-      }//end of typetype   
+      }
+      //image pixel spacing test
+      else if(testType == "Spacing")
+      {
+        error = 0;
+	double expectedFactor[3];
+
+	//get expected spacing
+	infile >> expectedFactor[0] >> expectedFactor[1] >> expectedFactor[2];
+
+	//get spacing from image file
+        ImageTypeIn::SpacingType spacing = filter->GetOutput()->GetSpacing();
+	
+	double factor[3];
+	for(int i = 0; i < 3; i++)
+	{
+	  factor[i] = spacing[i];
+	}
+
+	double testLength[3] = {4,4,4};
+
+	//convert actual length to pixel
+	int * pixelLength = convertToPixelLength(testLength, factor);
+	for(int i = 0; i < 3; i++)
+	{
+ 	  if(pixelLength[i] != (int)ceil(testLength[i]/expectedFactor[i]))
+	  {
+  	    error++;
+	  }
+	}
+
+	//convert pixel length to actual length
+	double * actualLength = convertToActualLength(pixelLength, factor);
+	for(int i = 0; i < 3; i++)
+	{
+ 	  if(actualLength[i] != testLength[i])
+	  {
+  	    error++;
+	  }
+	}
+
+	if(error == 0)
+	{
+	  return 0;
+	}
+	else
+	{
+  	  return -1;
+	}
+      }//end of test type
     }//end of strcmp
     //MRI test doesn't need input data from testcase
     else if(testType == "MRI")
