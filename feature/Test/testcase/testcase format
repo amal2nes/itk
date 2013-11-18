@@ -1,19 +1,25 @@
 ImageIntegral
-number of image integral tests
+numTests
 x y z expectedIntegralVal
 ...
 
 RandomBox
-number of random boxes tests
+numTests
 sizeMinX sizeMinY sizeMinZ sizeMaxX sizeMaxY sizeMaxZ distX distY distZ numBox
 ...
 
 Pixel
-number of pixel tests
+numTests
 x y z
 ...
 
 BoxIntegral
-number of box integral tests
-ox oy oz lx ly lz xPixel yPixel zPixel expectedIntegralVal
+numTests
+offsetX offsetY offsetZ lx ly lz xPixel yPixel zPixel expectedIntegralVal
 ...
+
+Spacing
+spacingX spacingY spacingZ
+
+Origin
+offsetX offsetY offsetZ

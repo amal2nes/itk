@@ -299,6 +299,56 @@ int main(int argc, char **argv)
 	{
   	  return -1;
 	}
+      }
+      //image pixel spacing test
+      else if(testType == "Origin")
+      {
+        error = 0;
+	double expectedOrigin[3];
+
+	//get expected spacing
+	infile >> expectedOrigin[0] >> expectedOrigin[1] >> expectedOrigin[2];
+
+	//get spacing from image file
+        ImageTypeIn::PointType originImg = filter->GetOutput()->GetOrigin();
+
+	double origin[3];
+	
+	for(int i = 0; i < 3; i++)
+	{
+	  origin[i] = originImg[i];
+	}
+	
+	double test[3] = {5.5, 5.5, 5.5};
+
+	//subtract origin test
+	double * result = subtractOrigin(test, origin);
+	for(int i = 0; i < 3; i++)
+	{
+	  if(result[i] != test[i] - expectedOrigin[i])
+	  {
+  	    error++;
+	  }
+	}
+
+	//add origin test
+	double * result2 = addOrigin(result, origin);
+	for(int i = 0; i < 3; i++)
+	{
+	  if(result2[i] != test[i])
+	  {
+  	    error++;
+	  }
+	}
+
+	if(error == 0)
+	{
+	  return 0;
+	}
+	else
+	{
+  	  return -1;
+	}
       }//end of test type
     }//end of strcmp
     //MRI test doesn't need input data from testcase
