@@ -79,8 +79,6 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
   output = new double[numTargetCoord * finalNumRandomBoxes]; // output initialization
 
   double* avgIntegral = new double[numRandomBoxes]; // intermediate data
-  
-  // bool* outOfBounds = new bool[numRandomBoxes]; // intermediate data
 
   // for each input coordinate
   for(int i = 0; i < numTargetCoord; i++) 
@@ -100,16 +98,13 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
         randomBoxData[m] = randomBoxes[k*6 + m]; 
       }
      
-      // reset current bounds
-      // outOfBounds[k] = false;      
-      
       //check if position is out of bounds
       for(int x = 0; x < 3; x++)
       {
         //absolute position of random box
         int pos = coord[x] + randomBoxData[x];
 
-	// if box is out of bounds, make it as nearest as possible
+	// if box is out of bounds, make it nearest to image boundary
         if(pos >= dim[x])
 	{
   	  randomBoxData[x] += dim[x] - pos;
@@ -127,110 +122,83 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
 	{
   	  randomBoxData[x+3] += dim[x] - posPlusLength;
 	}
-
-	// if(pos >= dim[x] || pos < 0 || posPlusLength >= dim[x])
-	// {
-  	//   outOfBounds[k] = true;
-	//   break;
-	// }	
       }
       
-      // start of avg integral calculation
-      // if(outOfBounds[k] == false)
-      // {
-      
-        //stores linear index of 8 vertices of the box
-	int indexes[8];
+      //stores linear index of 8 vertices of the box
+      int indexes[8];
 	
-	//stores integral of the box
-	double integrals[8];
+      //stores integral of the box
+      double integrals[8];
 	
-	//stores (x,y,z) coordinates of a vertice of a box
-	int currentBox[3];
+      //stores (x,y,z) coordinates of a vertice of a box
+      int currentBox[3];
 
-	// for each vertice
-	for(int z = 0; z < 8; z++)
+      // for each vertice
+      for(int z = 0; z < 8; z++)
+      {
+        //get origin of box from target coordinate + box offset
+        for(int g = 0; g < 3; g++)
 	{
-	  //get origin of box from target coordinate + box offset
-	  for(int g = 0; g < 3; g++)
-	  {
-  	    currentBox[g] =  coord[g] + randomBoxData[g];
-	  }
-	  
-	  //add length offset(s) to 8 vertices of the box
-	  switch(z)
-	  {
-	  case 1:
-	    currentBox[0] += randomBoxData[3];
-	    break;
-	  case 2:
-	    currentBox[1] += randomBoxData[4];
-	    break;
-	  case 3:
-	    currentBox[0] += randomBoxData[3];
-	    currentBox[1] += randomBoxData[4];
-	    break;
-	  case 4:
-	    currentBox[2] += randomBoxData[5];
-	    break;
-	  case 5:
-	    currentBox[0] += randomBoxData[3];
-	    currentBox[2] += randomBoxData[5];
-	    break;
-	  case 6:
-	    currentBox[1] += randomBoxData[4];
-	    currentBox[2] += randomBoxData[5];
-	    break;
-	  case 7:
-	    for(int y = 0; y < 3; y++)
-	      currentBox[y] += randomBoxData[y+3];
-	    break;
-	  default:
-	    break;
-	  }
-
-	  // convert x,y,z index to linear index 
-  	  indexes[z] = FeatureExtractRandomBox::getIndexFromXYZ(dim,currentBox);
-	  
-	  //get value from integral image
-	  integrals[z] = (double)data[indexes[z]];
+	  currentBox[g] =  coord[g] + randomBoxData[g];
 	}
+	  
+	//add length offset(s) to 8 vertices of the box
+	switch(z)
+	{
+	case 1:
+	  currentBox[0] += randomBoxData[3];
+	  break;
+	case 2:
+	  currentBox[1] += randomBoxData[4];
+	  break;
+	case 3:
+	  currentBox[0] += randomBoxData[3];
+	  currentBox[1] += randomBoxData[4];
+	    break;
+	case 4:
+	  currentBox[2] += randomBoxData[5];
+	  break;
+	case 5:
+	  currentBox[0] += randomBoxData[3];
+	  currentBox[2] += randomBoxData[5];
+	  break;
+	case 6:
+	  currentBox[1] += randomBoxData[4];
+	  currentBox[2] += randomBoxData[5];
+	  break;
+	case 7:
+	  for(int y = 0; y < 3; y++)
+	    currentBox[y] += randomBoxData[y+3];
+	  break;
+	default:
+	  break;
+	}
+	
+	// convert x,y,z index to linear index 
+	indexes[z] = FeatureExtractRandomBox::getIndexFromXYZ(dim,currentBox);
+	
+	//get value from integral image
+	integrals[z] = (double)data[indexes[z]];
+      }
 
-	//calculate current avg integral
-	avgIntegral[k] = (-integrals[0] + integrals[1] + integrals[2] - integrals[3] + integrals[4] - integrals[5] - integrals[6] + integrals[7]) / (randomBoxData[3]*randomBoxData[4]*randomBoxData[5]);
-
-      // }// end of box integral 
+      //calculate current avg integral
+      avgIntegral[k] = (-integrals[0] + integrals[1] + integrals[2] - integrals[3] + integrals[4] - integrals[5] - integrals[6] + integrals[7]) / (randomBoxData[3]*randomBoxData[4]*randomBoxData[5]);
+      
     }//end of random box loop
 
     //make half of results to be subtracted for MRI
     double* subtract = avgIntegral + finalNumRandomBoxes;
-
+    
     for(int s = 0; s < finalNumRandomBoxes; s++)
     {
       //perform subtraction on 2 boxes for MRI
       if(isMRI)
       {
-        // if(!outOfBounds[s] && !outOfBounds[s + finalNumRandomBoxes])
-	// {
-	  output[i*finalNumRandomBoxes + s] = avgIntegral[s] - subtract[s];
-	// }
-	// else
-	// {
-	//   // out of bounds
-	//   output[i*finalNumRandomBoxes + s] = 1e20;
-	// }
+        output[i*finalNumRandomBoxes + s] = avgIntegral[s] - subtract[s];
       }
       else
       {
-        // if(!outOfBounds[s])
-	// {
-	  output[i*finalNumRandomBoxes + s] = avgIntegral[s];
-	// }
-	// else
-	// {
-        //   // out of bounds
-	//   output[i*finalNumRandomBoxes + s] = 1e20;
-	// }
+        output[i*finalNumRandomBoxes + s] = avgIntegral[s];
       }
     }
   }// end of input coordinate loop
@@ -270,6 +238,7 @@ bool getTrainingData(const int* targetCoord, const int numTargetCoord, int* trai
       trainOutput[i*3+j] = targetCoord[i*3+j] - trainInput[j];
     }
   }
+  return true;
 }
 
 }//end namespace
