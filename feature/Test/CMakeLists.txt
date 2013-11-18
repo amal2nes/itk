@@ -2,7 +2,23 @@ add_executable(FeatureExtractTest FeatureExtractTest.cpp)
 
 TARGET_LINK_LIBRARIES(FeatureExtractTest ${ITK_LIBRARIES} FeatureExtractLib)
 
-ADD_TEST(FeatureExtractTest
-  ${EXECUTABLE_OUTPUT_PATH}/FeatureExtractTest
+INCLUDE_DIRECTORIES(
+   ../src
+)
+
+ADD_TEST(FeatureExtractTest_ImageIntegral ${EXECUTABLE_OUTPUT_PATH}/FeatureExtractTest ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testcase ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testImg.vtk ImageIntegral
   )
-SET_TESTS_PROPERTIES( FeatureExtractTest PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR;WARNING" )
+
+ADD_TEST(FeatureExtractTest_RandomBox ${EXECUTABLE_OUTPUT_PATH}/FeatureExtractTest ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testcase ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testImg.vtk RandomBox
+  )
+
+ADD_TEST(FeatureExtractTest_Pixel ${EXECUTABLE_OUTPUT_PATH}/FeatureExtractTest ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testcase ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testImg.vtk Pixel
+  )
+
+ADD_TEST(FeatureExtractTest_BoxIntegral ${EXECUTABLE_OUTPUT_PATH}/FeatureExtractTest ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testcase ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testImg.vtk BoxIntegral
+  )
+
+ADD_TEST(FeatureExtractTest_MRI ${EXECUTABLE_OUTPUT_PATH}/FeatureExtractTest ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testcase ${CMAKE_CURRENT_SOURCE_DIR}/testcase/testImg.vtk MRI
+  )
+
+#SET_TESTS_PROPERTIES( FeatureExtractTest PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR;WARNING" )

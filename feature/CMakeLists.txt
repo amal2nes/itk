@@ -23,7 +23,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(FeatureExtract_SRCS 
-	FeatureExtractSum.cpp FeatureExtractRandomBox.cpp
+	src/FeatureExtractSum.cpp src/FeatureExtractRandomBox.cpp
 )
 
 ADD_LIBRARY(FeatureExtractLib STATIC ${FeatureExtract_SRCS})

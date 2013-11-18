@@ -1,12 +1,19 @@
-number of image integral points to test image integral values
+ImageIntegral
+number of image integral tests
 x y z expectedIntegralVal
 ...
-number of random boxes to test generated randox box parameters
+
+RandomBox
+number of random boxes tests
 sizeMinX sizeMinY sizeMinZ sizeMaxX sizeMaxY sizeMaxZ distX distY distZ numBox
 ...
-number of pixel points to test out of bounds condition
+
+Pixel
+number of pixel tests
 x y z
 ...
-number of box integrals to test box integral values
+
+BoxIntegral
+number of box integral tests
 ox oy oz lx ly lz xPixel yPixel zPixel expectedIntegralVal
 ...
