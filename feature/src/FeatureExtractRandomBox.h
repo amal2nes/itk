@@ -12,7 +12,7 @@ int getIndexFromXYZ(const int* dim, const int* boxVertice);
 //calculates average integral based on target coordinates and random
 //boxes
 // generate an array of integral corresponding to target coordinates
-// and random boxes, returns continuous 1D array of rows of m x n input data
+// and random boxes, returns continuous 1D array of rows of m x n data
 // for CT: m = number of target coordinates,n = number of random boxes
 // for MRI: m = number of target coordinates,n = (number of random boxes)/2
 // targetCoord = array of input coordinates (x,y,z)'s
