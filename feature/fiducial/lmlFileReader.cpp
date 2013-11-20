@@ -29,19 +29,21 @@ int main(int argc, char **argv)
 	
   while(infile.good())
   {
-     
      if(line == 0)
      {
        getline(infile, dummyLine); 	   
      }
  
      Fiducial newMarker;
-     infile >> newMarker.id >> newMarker.name >> newMarker.value[0] >> newMarker.value[1] >> newMarker.value[2];
+
+     infile >> newMarker.id;
      
-     markers[newMarker.id] = newMarker;
-
+     if(infile.good())
+     {
+       infile >> newMarker.name >> newMarker.value[0] >> newMarker.value[1] >> newMarker.value[2];
+       markers[newMarker.id] = newMarker;
+     }
   }//end of ifstream
-
 
   map<int,Fiducial>::iterator it = markers.begin();
   cout << "map contains:\n";
