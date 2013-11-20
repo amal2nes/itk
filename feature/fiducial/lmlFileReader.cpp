@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <map>
-#incluve <utility>
+#include <utility>
 
 #include "fiducial.h"
 
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
   map<int,Fiducial>::iterator it = markers.begin();
   cout << "map contains:\n";
   for (it=markers.begin(); it!=markers.end(); ++it)
-    cout << it->first << " => " << (it->second).name << (it->second).value[0] << (it->second).value[1] << (it->second).value[2] << endl;
+    cout << it->first << " => " << (it->second).name <<", " << (it->second).value[0] <<", "<< (it->second).value[1] <<", "<< (it->second).value[2] << endl;
 
   return 0;
 }

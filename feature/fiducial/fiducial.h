@@ -1,11 +1,15 @@
 #ifndef FIDUCIAL_H
 #define FIDUCIAL_H
 
+#include <string>
+
+using namespace std;
+
 struct Fiducial
 {
     int id;
     string name;
-    double[3] value;
-}
+    double value[3];
+};
 
 #endif
