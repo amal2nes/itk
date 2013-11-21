@@ -28,7 +28,7 @@ template< class dataType>
 bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType * data, const int* dim, bool isMRI, double *& output);
 
 //returns 1D array of dx,dy,dz tuples where diff = fixed point input - pixel coordinate
-bool getTrainingData(const int* targetCoord, const int numTargetCoord, const int* trainInput, const int numTrain, int* & trainOutput)
+bool getTrainingData(const int* targetCoord, const int numTargetCoord, const int* trainInput, const int numTrain, int* & trainOutput);
 
 //convert from actual length to pixel length using image spacing factor
 int* convertToPixelLength(const double * actual, const double * factor);

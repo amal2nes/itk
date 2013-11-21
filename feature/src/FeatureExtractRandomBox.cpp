@@ -285,7 +285,7 @@ bool getTrainingData(const int* targetCoord, const int numTargetCoord, const int
   
   for(int i = 0; i < numTargetCoord; i++)
   {
-    for(int j = 0; j < numTrain, j++)
+    for(int j = 0; j < numTrain; j++)
     {
       for(int k = 0; k < 3; k++)
       {
