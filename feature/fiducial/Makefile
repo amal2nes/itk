@@ -1,2 +1,2 @@
 all:
-	g++ lmlFileReader.cpp -o lmlreader -I.
+	g++ FiducialTest.cpp -o FiducialTest -I.
