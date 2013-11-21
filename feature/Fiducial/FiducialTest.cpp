@@ -7,8 +7,10 @@
 #include <utility>
 
 #include "fiducial.h"
+#include "FeatureExtractRandomBox.h"
 
 using namespace std;
+using namespace FeatureExtractRandomBox;
 
 int main(int argc, char **argv)
 {
@@ -49,6 +51,38 @@ int main(int argc, char **argv)
   cout << "map contains:\n";
   for (it=markers.begin(); it!=markers.end(); ++it)
     cout << it->first << " => " << (it->second).name <<", " << (it->second).value[0] <<", "<< (it->second).value[1] <<", "<< (it->second).value[2] << endl;
+
+
+  int * target = new int[3*5];
+  for(int i = 0; i < 5; i++)
+  {
+    for(int j = 0; j < 3; j++)
+    {
+      target[i*3 + j] = j + 10;
+    }
+  }
+  int * trainInput = new int[3*3];
+  for(int i = 0; i < 3; i++)
+  {
+    for(int j = 0; j < 3; j++)
+    {
+      trainInput[i*3 + j] = i;
+    }
+  }
+  int * response;
+  int numTrain = 3;
+  int numTarget = 5;
+  getTrainingData(target, numTarget, trainInput, numTrain, response);
+  cout<<"response:"<<endl;
+  for(int i = 0; i < numTrain * numTarget; i++)
+  {
+    cout<<i<<": ";
+    for(int j = 0; j < 3; j++)
+    {
+      cout<<response[i*3 + j]<<" ";
+    }
+    cout<<endl;
+  }
 
   return 0;
 }
