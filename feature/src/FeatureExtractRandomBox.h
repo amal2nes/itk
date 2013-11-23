@@ -27,7 +27,8 @@ int getIndexFromXYZ(const int* dim, const int* boxVertice);
 template< class dataType>
 bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, const int* randomBoxes, const int numRandomBoxes, const dataType * data, const int* dim, bool isMRI, double *& output);
 
-//returns 1D array of dx,dy,dz tuples where diff = fixed point input - pixel coordinate
+//returns 1D array of dx,dy,dz tuples where diff = fixed training input -
+//target coordinate, result ordered by target coordinate, training points
 bool getTrainingData(const int* targetCoord, const int numTargetCoord, const int* trainInput, const int numTrain, int* & trainOutput);
 
 //convert from actual length to pixel length using image spacing factor

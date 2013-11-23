@@ -278,7 +278,8 @@ int getIndexFromXYZ(const int* dim, const int* boxVertice)
   return index;
 }
 
-//returns 1D array of dx,dy,dz tuples where diff = fixed point input - pixel coordinate
+//returns 1D array of dx,dy,dz tuples where diff = fixed training input -
+//target coordinate, result ordered by target coordinate, training points
 bool getTrainingData(const int* targetCoord, const int numTargetCoord, const int* trainInput, const int numTrain, int* & trainOutput)
 {
   trainOutput = new int[numTargetCoord * numTrain * 3];
