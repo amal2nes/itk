@@ -126,7 +126,7 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
   int coord[3];
   int randomBoxData[6];
 
-  // number of random boxes for MRI halves
+  // number of effective random boxes for MRI is half
   int finalNumRandomBoxes = (isMRI? numRandomBoxes/2: numRandomBoxes);
 
   output = new double[numTargetCoord * finalNumRandomBoxes]; // output initialization
@@ -242,16 +242,18 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
     //make half of results to be subtracted for MRI
     double* subtract = avgIntegral + finalNumRandomBoxes;
     
+    int outputIndex = i*finalNumRandomBoxes;
+
     for(int s = 0; s < finalNumRandomBoxes; s++)
     {
       //perform subtraction on 2 boxes for MRI
       if(isMRI)
       {
-        output[i*finalNumRandomBoxes + s] = avgIntegral[s] - subtract[s];
+        output[outputIndex + s] = avgIntegral[s] - subtract[s];
       }
       else
       {
-        output[i*finalNumRandomBoxes + s] = avgIntegral[s];
+        output[outputIndex + s] = avgIntegral[s];
       }
     }
   }// end of input coordinate loop
