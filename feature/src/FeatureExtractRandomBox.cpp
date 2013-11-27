@@ -126,12 +126,16 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
   int coord[3];
   int randomBoxData[6];
 
-  // number of effective random boxes for MRI is half
-  int finalNumRandomBoxes = (isMRI? numRandomBoxes/2: numRandomBoxes);
+  // // number of effective random boxes for MRI is half
+  // int finalNumRandomBoxes = (isMRI? numRandomBoxes/2: numRandomBoxes);
 
-  output = new double[numTargetCoord * finalNumRandomBoxes]; // output initialization
+  // output = new double[numTargetCoord * finalNumRandomBoxes]; // output initialization
+  
+  output = new double[numTargetCoord * numRandomBoxes]; // output initialization
 
-  double* avgIntegral = new double[numRandomBoxes]; // intermediate data
+  double * output_head = output;
+
+  // double* avgIntegral = new double[numRandomBoxes]; // intermediate data
 
   // for each input coordinate
   for(int i = 0; i < numTargetCoord; i++) 
@@ -141,6 +145,9 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
     {
       coord[j] = targetCoord[i*3 + j]; 
     }
+
+    //save start of 2nd half to be subtracted for MRI
+    double* subtract = output;
   
     // for each random box
     for(int k = 0; k < numRandomBoxes; k++) 
@@ -234,30 +241,31 @@ bool getRandomBoxIntegral(const int* targetCoord, const int numTargetCoord, cons
 	integrals[z] = (double)data[indexes[z]];
       }
 
+      // //calculate current avg integral
+      // avgIntegral[k] = (-integrals[0] + integrals[1] + integrals[2] - integrals[3] + integrals[4] - integrals[5] - integrals[6] + integrals[7]) / (randomBoxData[3]*randomBoxData[4]*randomBoxData[5]);
+
       //calculate current avg integral
-      avgIntegral[k] = (-integrals[0] + integrals[1] + integrals[2] - integrals[3] + integrals[4] - integrals[5] - integrals[6] + integrals[7]) / (randomBoxData[3]*randomBoxData[4]*randomBoxData[5]);
-      
+      *output = (-integrals[0] + integrals[1] + integrals[2] - integrals[3] + integrals[4] - integrals[5] - integrals[6] + integrals[7]) / (randomBoxData[3]*randomBoxData[4]*randomBoxData[5]);
+      ++output;
+
     }//end of random box loop
 
-    //make half of results to be subtracted for MRI
-    double* subtract = avgIntegral + finalNumRandomBoxes;
-    
-    int outputIndex = i*finalNumRandomBoxes;
-
-    for(int s = 0; s < finalNumRandomBoxes; s++)
+    //perform subtraction on 2 boxes for MRI
+    if(isMRI)
     {
-      //perform subtraction on 2 boxes for MRI
-      if(isMRI)
+      output = subtract;
+      double* subtractHalf = output + numRandomBoxes/2;
+      for(int s = 0; s < numRandomBoxes/2; s++)
       {
-        output[outputIndex + s] = avgIntegral[s] - subtract[s];
-      }
-      else
-      {
-        output[outputIndex + s] = avgIntegral[s];
+        *output = *output - *subtractHalf;
+	++output;
+	++subtractHalf;
       }
     }
   }// end of input coordinate loop
   
+  output = output_head;
+
   return true;
 }
 

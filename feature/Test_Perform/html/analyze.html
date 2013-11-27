@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>analyze</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-11-20"><meta name="DC.source" content="analyze.m"><style type="text/css">
+      --><title>analyze</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-11-26"><meta name="DC.source" content="analyze.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -73,6 +73,9 @@ type{2} = <span class="string">'Not MRI'</span>;
 <span class="comment">%   data{i} = data{i}(1:round(end/4),:);</span>
 <span class="comment">% end</span>
 
+data{1}((data{1}(:,16)&lt;0),:)=[];
+data{2}((data{2}(:,16)&lt;0),:)=[];
+
 set(figure, <span class="string">'Position'</span>, [0, 0, 1100, 550]);
 </pre><img vspace="5" hspace="5" src="analyze_01.png" alt=""> <h2>scatter plot<a name="2"></a></h2><pre class="codeinput"><span class="keyword">for</span> i = 1:2
     subplot(1,2,i);
@@ -100,12 +103,12 @@ set(figure, <span class="string">'Position'</span>, [0, 0, 1100, 550]);
 </pre><pre class="codeoutput">
 avg_mri =
 
-  880.5683
+  992.2231
 
 
 avg_not_mri =
 
-  938.5884
+  990.4301
 
 </pre><img vspace="5" hspace="5" src="analyze_03.png" alt=""> <h2>Sector Averages<a name="4"></a></h2><pre class="codeinput"><span class="comment">% generate average for 0 &lt; num &lt; 3333, 3333 &lt;= num &lt;= 6666, num &gt; 6666</span>
 threshTargetNum(1) = 3333;
@@ -188,6 +191,9 @@ type{2} = 'Not MRI';
 % for i = 1:2
 %   data{i} = data{i}(1:round(end/4),:);
 % end
+
+data{1}((data{1}(:,16)<0),:)=[];
+data{2}((data{2}(:,16)<0),:)=[];
 
 set(figure, 'Position', [0, 0, 1100, 550]);
 

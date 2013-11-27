@@ -79,9 +79,9 @@ int main(int argc, char **argv)
     //generate parameters for random boxes
     for(int i = 0; i<3; i++)
     {
-      boxSizeMin[i] = rand()%(dim[i]-1) + 1;
+      boxSizeMin[i] = rand()%((dim[i]-1)) + 1;
       boxSizeMax[i] = rand()%(dim[i]-boxSizeMin[i]) + boxSizeMin[i];
-      distance[i] = rand()%(dim[i]) + 1;      
+      distance[i] = rand()%(dim[i]/2) + 1;      
     }
 
     numBox = rand()%(boxNumMax) + 1;
@@ -91,6 +91,9 @@ int main(int argc, char **argv)
     //generate random target pixel coordinates
     for(int i = 0; i < numTargCoord; i++)
     {
+      // targetCoord[i*3] = dim[0]/2;
+      // targetCoord[i*3+1] = dim[1]/2;
+      // targetCoord[i*3+2] = dim[2]/2;
       targetCoord[i*3] = rand()%(dim[0]);
       targetCoord[i*3+1] = rand()%(dim[1]);
       targetCoord[i*3+2] = rand()%(dim[2]);
@@ -111,11 +114,13 @@ int main(int argc, char **argv)
     isMRI[0] = true;
     isMRI[1] = false;
 
+    double timeAvg;
+    double diff[2];
+
     for(int i = 0; i < 2; i++)
     {
 
       clock_t t1,t2;
-      double diff;
       
       // start timing
       t1=clock();
@@ -127,7 +132,7 @@ int main(int argc, char **argv)
   
       //end timing
       t2=clock();
-      diff = ((double)t2-(double)t1);
+      diff[i] = ((double)t2-(double)t1);
 
       //write test parameters and time to file
 
@@ -149,7 +154,7 @@ int main(int argc, char **argv)
       }
       fileTiming<<numTargCoord<<","<<numBox<<",";
       fileTiming<<isMRI[i]<<",";
-      fileTiming<<diff/CLOCKS_PER_SEC*1000<<std::endl;
+      fileTiming<<diff[i]/CLOCKS_PER_SEC*1000<<std::endl;
           
       int finalNumBox = isMRI[i] ? numBox/2: numBox;
 #ifdef DEBUG
@@ -169,6 +174,9 @@ int main(int argc, char **argv)
 #endif
       delete [] integral;
     }
+
+    timeAvg = (diff[0] + diff[1])/2;
+
 #ifdef DEBUG
     //write random box offset and length data to file
     for(int i = 0; i < numBox; i++)
@@ -187,7 +195,7 @@ int main(int argc, char **argv)
     delete [] out;
     delete [] targetCoord;
 
-    std::cout<<"test# "<<testNum+1<<"/"<<totalTests<<std::endl;
+    std::cout<<"test# "<<testNum+1<<"/"<<totalTests<<": "<<timeAvg/CLOCKS_PER_SEC*1000<<std::endl;
       
   }// of testNum loop 
  

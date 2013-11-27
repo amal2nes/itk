@@ -18,6 +18,9 @@ type{2} = 'Not MRI';
 %   data{i} = data{i}(1:round(end/4),:);
 % end
 
+data{1}((data{1}(:,16)<0),:)=[];
+data{2}((data{2}(:,16)<0),:)=[];
+
 set(figure, 'Position', [0, 0, 1100, 550]);
 
 %% scatter plot
