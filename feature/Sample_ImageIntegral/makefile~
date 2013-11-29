@@ -1,2 +1,0 @@
-all:
-	g++ -std=gnu++0x SampleImageIntegral.cpp -o SampleImageIntegral -I.
