@@ -100,9 +100,6 @@ void FeatureExtractFilter< TInputImage, TOutputImage >::GenerateData()
   FeatureExtractSum::sumY(dims, outRaw);
 
   FeatureExtractSum::sumZ(dims, outRaw);
-
-  // std::cout<<"test sum at (10,10,10): "<<outRaw[9*dims[0]*dims[1] + 9*dims[0] + 9]<<std::endl;
-  // std::cout<<"test sum at (10,20,30): "<<outRaw[29*dims[0]*dims[1] + 19*dims[0] + 9]<<std::endl;
 }
 
 }//end of itk namespace
