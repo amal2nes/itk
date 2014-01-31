@@ -1,4 +1,4 @@
 itk
 ===
 
-image segmentation related tests
+final project in feature folder
